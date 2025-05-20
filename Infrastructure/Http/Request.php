@@ -1,5 +1,7 @@
 <?php
 
+namespace DemoShop\Infrastructure\Http;
+
 /**
  * Request class encapsulates HTTP request data,
  * such as method, URL, query params, and body.

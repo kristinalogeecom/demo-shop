@@ -1,0 +1,12 @@
+{
+  "name": "kristina/demo-shop",
+  "description": "PHP project for demo-shop.",
+  "autoload": {
+    "psr-4": {
+      "DemoShop\\": ""
+    }
+  },
+  "require": {
+    "php": ">=8.1"
+  }
+}

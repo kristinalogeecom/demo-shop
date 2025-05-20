@@ -1,5 +1,8 @@
 <?php
 
+namespace DemoShop\Infrastructure\Router;
+
+use DemoShop\Infrastructure\Http\Request;
 
 /**
  * Router class responsible for defining and matching routes

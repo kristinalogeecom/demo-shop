@@ -1,35 +1,32 @@
 <?php
 
-require_once __DIR__ . '/../../Infrastructure/Router/Router.php';
-require_once __DIR__ . '/../../Infrastructure/Http/Request.php';
+namespace DemoShop\Application\Configuration;
+
+use DemoShop\Infrastructure\Router\Router;
+use DemoShop\Infrastructure\Http\Request;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
+use Exception;
 
 /**
  * The main application class responsible for bootstrapping
- * the router and handling the incoming HTTP request.
+ * services and dispatching the current HTTP request.
  */
 class App
 {
-    protected Router $router;
-    protected Request $request;
-
     /**
-     * Initializes the router and request objects.
-     */
-    public function __construct()
-    {
-        $this->router = new Router();
-        $this->request = new Request();
-    }
-
-    /**
-     * Loads route definitions and dispatches the request to the appropriate handler.
+     * Initializes and registers core services.
      *
      * @return void
+     * @throws Exception
      */
-    public function boot(): void
+    public static function boot(): void
     {
-        $router = $this->router;
+        ServiceRegistry::set('router', new Router());
+        ServiceRegistry::set('request', new Request());
+
+        $router = ServiceRegistry::get('router');
         include __DIR__ . '/Routes/Web.php';
-        $this->router->matchRoute($this->request);
+
+        $router->matchRoute(ServiceRegistry::get('request'));
     }
 }

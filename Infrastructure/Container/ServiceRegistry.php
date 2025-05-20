@@ -1,5 +1,7 @@
 <?php
 
+namespace DemoShop\Infrastructure\Container;
+
 class ServiceRegistry
 {
     private static array $services = [];

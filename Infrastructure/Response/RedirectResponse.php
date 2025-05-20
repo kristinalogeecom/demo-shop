@@ -1,5 +1,6 @@
 <?php
 
+namespace DemoShop\Infrastructure\Response;
 
 /**
  * Represents an HTTP redirect response.

@@ -1,5 +1,7 @@
 <?php
 
+namespace DemoShop\Infrastructure\Response;
+
 /**
  * Represents a JSON API response.
  */

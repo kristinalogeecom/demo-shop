@@ -1,6 +1,12 @@
 <?php
 
-require_once __DIR__ . '/Application/Configuration/App.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-$app = new App();
-$app->boot();
+use DemoShop\Application\Configuration\App;
+
+try {
+    App::boot();
+} catch (Exception $e) {
+
+}
+

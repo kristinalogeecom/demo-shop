@@ -1,5 +1,7 @@
 <?php
 
+namespace DemoShop\Application\Presentation\Controller;
+
 /**
  * Controller responsible for handling authentication logic.
  */

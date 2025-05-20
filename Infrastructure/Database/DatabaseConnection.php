@@ -1,4 +1,7 @@
 <?php
+
+namespace DemoShop\Infrastructure\Database;
+
 class DatabaseConnection
 {
     private static ?PDO $instance = null;

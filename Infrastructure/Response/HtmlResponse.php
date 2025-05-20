@@ -1,5 +1,7 @@
 <?php
 
+namespace DemoShop\Infrastructure\Response;
+
 /**
  * Represents an HTML-based response.
  */
@@ -50,7 +52,7 @@ class HtmlResponse extends Response
         // Render dynamic PHTML template
         ob_start();
         extract($this->params);
-        include __DIR__ . '/../../Application/Presentation/Page.php' . $this->templateOrPath . '.phtml';
+        include __DIR__ . '/../../Application/Presentation/Page/' . $this->templateOrPath . '.phtml';
         echo ob_get_clean();
     }
 

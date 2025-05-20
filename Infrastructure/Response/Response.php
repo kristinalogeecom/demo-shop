@@ -1,5 +1,6 @@
 <?php
 
+namespace DemoShop\Infrastructure\Response;
 
 /**
  * Abstract base class for all HTTP responses.

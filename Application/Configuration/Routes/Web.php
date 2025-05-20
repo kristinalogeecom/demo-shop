@@ -1,29 +1,26 @@
 <?php
 
-require_once __DIR__ . '/../../Presentation/Controller/AuthController.php';
+namespace DemoShop\Application\Configuration\Routes;
+
+use DemoShop\Application\Presentation\Controller\AuthController;
+use DemoShop\Infrastructure\Response\HtmlResponse;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 
 $auth = new AuthController();
 
-/** @var Router $router */
-$router->addRoute('GET', '/', function () {
-    include __DIR__ . '/../../Presentation/Page/Visitor.phtml';
-});
+try {
+    ServiceRegistry::get('router')->addRoute('GET', '/', function () {
+        (new HtmlResponse('Visitor'))->send();
+    });
 
-$router->addRoute('GET', '/visitors', function () {
-    include __DIR__ . '/../../Presentation/Page/Visitor.phtml';
-});
+    ServiceRegistry::get('router')->addRoute('GET', '/admin/login', [$auth, 'showLogin']);
+    ServiceRegistry::get('router')->addRoute('POST', '/admin/login', [$auth, 'login']);
 
-$router->addRoute('GET', '/', function ($request) {
-    var_dump($request->url());
-    exit;
-});
-
-$router->addRoute('GET', '/admin/login', [$auth, 'showLogin']);
-$router->addRoute('POST', '/admin/login', [$auth, 'login']);
-
-$router->addRoute('GET', '/404', function () {
-    include __DIR__ . '/../../Presentation/Page/Error404.phtml';
-});
+    ServiceRegistry::get('router')->addRoute('GET', '/404', function () {
+        (new HtmlResponse('Error404'))->send();
+    });
+} catch (\Exception $e) {
+}
 
 
 //
