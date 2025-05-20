@@ -72,7 +72,7 @@ class Router
             return '@^/$@D';
         }
 
-        return '@^' . preg_replace_callback('/\{(\w+)(?::([^}]+))?\}/', function ($matches) {
+        return '@^' . preg_replace_callback('/\{(\w+)(?::([^}]+))?}/', function ($matches) {
                 $name = $matches[1];
                 $constraint = $matches[2] ?? '[^/]+';
                 return '(?P<' . $name . '>' . $constraint . ')';
