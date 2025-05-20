@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f6f9fc, #e9f1fb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.visitor-container {
+    background-color: #ffffff;
+    padding: 60px 50px;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e3ebf3;
+    transition: all 0.3s ease;
+}
+
+.visitor-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.visitor-container h1 {
+    font-size: 40px;
+    font-weight: 500;
+    color: #2a5dba;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+}
+
+.visitor-container p {
+    font-size: 18px;
+    color: #4a4a4a;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.visitor-container .btn {
+    margin-top: 30px;
+    display: inline-block;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.visitor-container .btn:hover {
+    background: linear-gradient(to right, #2563eb, #1e40af);
+}
