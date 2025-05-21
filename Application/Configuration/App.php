@@ -9,16 +9,21 @@ use DemoShop\Infrastructure\Router\Router;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Application\BusinessLogic\Service\AdminService;
+use DemoShop\Application\Persistence\Encryption\Encrypter;
+use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
+use Dotenv\Dotenv;
 use Exception;
 
 /**
- * The main application class responsible for bootstrapping
- * services and dispatching the current HTTP request.
+ * The main entry point of the application.
+ * Responsible for initializing core services,
+ * setting up the database connection and dispatching HTTP request
  */
 class App
 {
     /**
-     * Initializes and registers core services.
+     * Boots the application by initializing the database,
+     * registering services, and loading routes.
      *
      * @return void
      * @throws Exception
@@ -31,7 +36,7 @@ class App
     }
 
     /**
-     * just for testing connection to the database
+     * just for testing
      *
      * @throws Exception
      */
@@ -42,16 +47,24 @@ class App
     }
 
 
+    /**
+     * Loads environment variables and initializes
+     * the database connection using EloquentORM.
+     *
+     * @return void
+     */
     private static function initDatabase(): void
     {
-        $capsule = new Capsule();
+        $dotenv = Dotenv::createImmutable(realpath(__DIR__ . '/../../'));
+        $dotenv->load();
 
+        $capsule = new Capsule();
         $capsule->addConnection([
-            'driver'    => 'mysql',
-            'host'      => '127.0.0.1',
-            'database'  => 'demo_shop',
-            'username'  => 'root',
-            'password'  => 'root',
+            'driver'    => $_ENV['DB_CONNECTION'],
+            'host'      => $_ENV['DB_HOST'],
+            'database'  => $_ENV['DB_DATABASE'],
+            'username'  => $_ENV['DB_USERNAME'],
+            'password'  => $_ENV['DB_PASSWORD'],
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
@@ -63,13 +76,23 @@ class App
     }
 
     /**
+     * Registers core services.
+     *
+     * @return void
      * @throws Exception
      */
     private static function initServices(): void
     {
         ServiceRegistry::set('router', new Router());
         ServiceRegistry::set('request', new Request());
-        ServiceRegistry::set('adminRepository', new AdminRepository());
+
+        $rawKey = $_ENV['ENCRYPTION_KEY'];
+        $encryption = new Encrypter($rawKey);
+        ServiceRegistry::set(EncryptionInterface::class, $encryption);
+
+        ServiceRegistry::set('adminRepository', new AdminRepository(
+            ServiceRegistry::get(EncryptionInterface::class),
+        ));
 
         ServiceRegistry::set('adminService', new AdminService(
             ServiceRegistry::get("adminRepository")
@@ -81,6 +104,10 @@ class App
     }
 
     /**
+     * Loads application routes from the Web.php file
+     * and dispatches the current HTTP request using the router.
+     *
+     * @return void
      * @throws Exception
      */
     private static function initRouter(): void

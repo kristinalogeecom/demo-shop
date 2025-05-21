@@ -5,6 +5,8 @@ namespace DemoShop\Application\Persistence\Model;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * Represents an admin user stored in the 'admins' database table.
+ *
  * @property string $username
  * @property string $password
  *

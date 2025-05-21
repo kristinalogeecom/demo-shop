@@ -2,31 +2,75 @@
 
 namespace DemoShop\Application\BusinessLogic\Service;
 
+use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
+use DemoShop\Infrastructure\Response\HtmlResponse;
+use DemoShop\Infrastructure\Response\RedirectResponse;
 
+/**
+ * Handles business logic related to admin authentication,
+ * including login validation and credential verification.
+ */
 class AdminService
 {
     private AdminRepository $adminRepository;
 
+    /**
+     * @param AdminRepository $adminRepository
+     */
     public function __construct(AdminRepository $adminRepository)
     {
         $this->adminRepository = $adminRepository;
     }
 
-    public function attemptLogin(string $username, string $password): bool
+    /**
+     * Attempts to log in an admin using provided credentials.
+     *
+     * @param Admin $admin
+     *
+     * @return HtmlResponse|RedirectResponse
+     */
+    public function handleLogin(Admin $admin):  HtmlResponse|RedirectResponse
     {
-        $admin = $this->adminRepository->findByUsername($username);
+        $errors = $this->validateLogin($admin);
 
-        return $admin && password_verify($password, $admin->password);
+
+        if (!empty($errors)) {
+            return new HtmlResponse('Login', [
+                'errors' => $errors,
+                'username' => $admin->getUsername()
+            ]);
+        }
+
+        if ($this->attemptLogin($admin)) {
+            session_start();
+            $_SESSION['admin_logged_in'] = true;
+
+            return new RedirectResponse('/admin/dashboard', 302);
+        }
+
+        return new HtmlResponse('Login', [
+            'errors' => ['Invalid username or password.'],
+            'username' => $admin->getUsername()
+        ]);
     }
 
-    public function validateLogin(?string $username, ?string $password): array
+    /**
+     * Validates login form input and checks password complexity requirements.
+     *
+     * @param Admin $admin
+     *
+     * @return array An array of validation error messages (empty if no errors).
+     */
+    public function validateLogin(Admin $admin): array
     {
         $errors = [];
 
-        if (empty($username)) {
+        if (empty($admin->getUsername())) {
             $errors[] = "Username is required.";
         }
+
+        $password = $admin->getPassword();
 
         if (empty($password)) {
             $errors[] = "Password is required.";
@@ -48,5 +92,13 @@ class AdminService
         }
 
         return $errors;
+    }
+
+    private function attemptLogin(Admin $admin): bool
+    {
+        $adminFromDb = $this->adminRepository->findByUsername($admin->getUsername());
+
+        return $adminFromDb !== null &&
+            $this->adminRepository->verifyPassword($adminFromDb, $admin->getPassword());
     }
 }

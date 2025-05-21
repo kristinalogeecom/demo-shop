@@ -2,6 +2,7 @@
 
 namespace DemoShop\Application\Presentation\Controller;
 
+use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\BusinessLogic\Service\AdminService;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\HtmlResponse;
@@ -37,30 +38,14 @@ class AdminController
      */
     public function login(Request $request): void
     {
-        $username = $request->input('username');
-        $password = $request->input('password');
+        $admin = new Admin(
+            $request->input('username'),
+            $request->input('password'),
+        );
 
-        $errors = $this->adminService->validateLogin($username, $password);
+        $response = $this->adminService->handleLogin($admin);
 
-        if (!empty($errors)) {
-            (new HtmlResponse('Login', [
-                'errors' => $errors,
-                'username' => $username
-            ]))->send();
-
-            return;
-        }
-
-        if($this->adminService->attemptLogin($username, $password)) {
-            session_start();
-            $_SESSION['admin_logged_in'] = true;
-            (new RedirectResponse('/admin/dashboard', 302))->send();
-        } else {
-            (new HtmlResponse('Login', [
-                'errors' => ['Invalid username or password.'],
-                'username' => $username
-            ]))->send();
-        }
+        $response->send();
 
     }
 }
