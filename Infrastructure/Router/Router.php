@@ -57,7 +57,8 @@ class Router
             }
         }
 
-        include_once __DIR__ . '/../../Application/Presentation/Page/Error404.phtml';
+        header("Location: /error");
+        exit;
     }
 
     /**

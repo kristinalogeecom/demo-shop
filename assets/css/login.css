@@ -75,3 +75,19 @@ html, body {
 .login-container button:hover {
     background: linear-gradient(to right, #2563eb, #1e40af);
 }
+
+.error-box {
+    margin-top: 15px;
+    background-color: #ffe6e6;
+    color: #a94442;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.error-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+

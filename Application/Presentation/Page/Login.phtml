@@ -2,10 +2,24 @@
 
 <div class="login-container">
     <h1>Admin Login</h1>
-    <form method="POST" action="/admin/login">
-        <input type="text" name="username" placeholder="Username">
+
+    <form method="POST" action="/admin/login" id="loginForm">
+
+        <input type="text" name="username" placeholder="Username"
+               value="<?= htmlspecialchars($username ?? '') ?>">
+
         <input type="password" name="password" placeholder="Password">
+
         <button type="submit">Login</button>
+
+        <?php if (!empty($errors)): ?>
+            <div class="error-box">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
     </form>
 </div>
-

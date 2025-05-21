@@ -2,6 +2,8 @@
 
 namespace DemoShop\Infrastructure\Database;
 
+use RuntimeException;
+
 class DatabaseConnection
 {
     private static ?PDO $instance = null;

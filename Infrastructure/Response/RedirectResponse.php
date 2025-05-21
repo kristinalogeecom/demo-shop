@@ -16,6 +16,6 @@ class RedirectResponse extends Response
      */
     public function __construct(string $location, int $status = 302)
     {
-        parent::__construct($location, ['Location' => $location]);
+        parent::__construct($status, ['Location' => $location]);
     }
 }

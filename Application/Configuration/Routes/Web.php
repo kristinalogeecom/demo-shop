@@ -2,13 +2,13 @@
 
 namespace DemoShop\Application\Configuration\Routes;
 
-use DemoShop\Application\Presentation\Controller\AuthController;
+use DemoShop\Application\Presentation\Controller\AdminController;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 
-$auth = new AuthController();
-
 try {
+    $auth = new AdminController(ServiceRegistry::get('adminService'));
+
     ServiceRegistry::get('router')->addRoute('GET', '/', function () {
         (new HtmlResponse('Visitor'))->send();
     });
@@ -19,7 +19,16 @@ try {
     ServiceRegistry::get('router')->addRoute('GET', '/404', function () {
         (new HtmlResponse('Error404'))->send();
     });
+    ServiceRegistry::get('router')->addRoute('GET', '/505', function () {
+        (new HtmlResponse('Error505'))->send();
+    });
+
+    ServiceRegistry::get('router')->addRoute('GET', '/admin/dashboard', function () {
+        (new HtmlResponse('AdminDashboard'))->send();
+    });
+
 } catch (\Exception $e) {
+
 }
 
 
