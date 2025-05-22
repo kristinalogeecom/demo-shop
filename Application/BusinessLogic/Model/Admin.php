@@ -2,6 +2,9 @@
 
 namespace DemoShop\Application\BusinessLogic\Model;
 
+/**
+ * Represents an admin user in the system.
+ */
 class Admin
 {
     private int $id;
@@ -47,6 +50,5 @@ class Admin
     {
         $this->password = $password;
     }
-
 
 }

@@ -14,11 +14,9 @@
 
         <?php if (!empty($errors)): ?>
             <div class="error-box">
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= htmlspecialchars($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <?php foreach ($errors as $error): ?>
+                    <p><?= htmlspecialchars($error) ?></p>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
     </form>

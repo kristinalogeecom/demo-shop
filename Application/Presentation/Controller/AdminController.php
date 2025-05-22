@@ -3,7 +3,7 @@
 namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Application\BusinessLogic\Model\Admin;
-use DemoShop\Application\BusinessLogic\Service\AdminService;
+use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\Response;
 use DemoShop\Infrastructure\Response\HtmlResponse;
@@ -14,9 +14,9 @@ use DemoShop\Infrastructure\Response\RedirectResponse;
  */
 class AdminController
 {
-    private AdminService $adminService;
+    private AdminServiceInterface $adminService;
 
-    public function __construct(AdminService $adminService)
+    public function __construct(AdminServiceInterface $adminService)
     {
         $this->adminService = $adminService;
     }
