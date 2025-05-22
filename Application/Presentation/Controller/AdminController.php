@@ -5,6 +5,7 @@ namespace DemoShop\Application\Presentation\Controller;
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\BusinessLogic\Service\AdminService;
 use DemoShop\Infrastructure\Http\Request;
+use DemoShop\Infrastructure\Response\Response;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
 
@@ -21,31 +22,27 @@ class AdminController
     }
 
     /**
-     * Displays the admin login form.
-     *
-     * @return void
-     */
-    public function showLogin(): void
-    {
-        (new HtmlResponse('Login', ['errors' => [], 'username' => '']))->send();
-    }
-
-    /**
      * Handles the login request.
      *
      * @param Request $request The HTTP request object containing form data
-     * @return void
+     * @return Response
      */
-    public function login(Request $request): void
+    public function login(Request $request): Response
     {
         $admin = new Admin(
             $request->input('username'),
             $request->input('password'),
         );
 
-        $response = $this->adminService->handleLogin($admin);
+        $success = $this->adminService->attemptLogin($admin);
 
-        $response->send();
-
+        if($success) {
+            return new RedirectResponse('/admin/dashboard', 302);
+        } else {
+            return new HtmlResponse('Login', [
+                'errors' => ['Invalid username or password.'],
+                'username' => $admin->getUsername(),
+            ]);
+        }
     }
 }

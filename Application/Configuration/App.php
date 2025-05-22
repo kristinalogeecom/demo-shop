@@ -4,6 +4,8 @@ namespace DemoShop\Application\Configuration;
 
 use DemoShop\Application\Persistence\Repository\AdminRepository;
 use DemoShop\Application\Presentation\Controller\AdminController;
+use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
+use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use DemoShop\Infrastructure\Router\Router;
 use DemoShop\Infrastructure\Http\Request;
@@ -85,6 +87,9 @@ class App
     {
         ServiceRegistry::set('router', new Router());
         ServiceRegistry::set('request', new Request());
+
+        ServiceRegistry::set('adminAuthMiddleware', new AdminAuthMiddleware());
+        ServiceRegistry::set('passwordPolicyMiddleware', new PasswordPolicyMiddleware());
 
         $rawKey = $_ENV['ENCRYPTION_KEY'];
         $encryption = new Encrypter($rawKey);
