@@ -57,8 +57,8 @@ class Router
             }
         }
 
-        header("Location: /error");
-        exit;
+        //header("Location: /error");
+        //exit;
     }
 
     /**

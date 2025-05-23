@@ -3,8 +3,11 @@
 namespace DemoShop\Application\Configuration;
 
 use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
+use DemoShop\Application\BusinessLogic\Service\DashboardService;
+use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
 use DemoShop\Application\Configuration\Routes\WebRouteRegistrar;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
+use DemoShop\Application\Persistence\Repository\DashboardRepository;
 use DemoShop\Application\Presentation\Controller\AdminController;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
 use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
@@ -113,11 +116,18 @@ class App
         );
         ServiceRegistry::set(AdminRepository::class, $adminRepository);
 
+        $dashboardRepository = new DashboardRepository();
+        ServiceRegistry::set(DashboardRepository::class, $dashboardRepository);
+
         $adminService = new AdminService($adminRepository);
         ServiceRegistry::set(AdminServiceInterface::class, $adminService);
 
+        $dashboardService = new DashboardService($dashboardRepository);
+        ServiceRegistry::set(DashboardServiceInterface::class, $dashboardService);
+
         ServiceRegistry::set(AdminController::class, new AdminController(
-            ServiceRegistry::get(AdminServiceInterface::class)
+            ServiceRegistry::get(AdminServiceInterface::class),
+            ServiceRegistry::get(DashboardServiceInterface::class)
         ));
     }
 

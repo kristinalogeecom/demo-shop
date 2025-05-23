@@ -4,7 +4,9 @@ namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
+use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
 use DemoShop\Infrastructure\Http\Request;
+use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
@@ -15,10 +17,12 @@ use DemoShop\Infrastructure\Response\RedirectResponse;
 class AdminController
 {
     private AdminServiceInterface $adminService;
+    private DashboardServiceInterface $dashboardService;
 
-    public function __construct(AdminServiceInterface $adminService)
+    public function __construct(AdminServiceInterface $adminService, DashboardServiceInterface $dashboardService)
     {
         $this->adminService = $adminService;
+        $this->dashboardService = $dashboardService;
     }
 
     /**
@@ -44,5 +48,27 @@ class AdminController
                 'username' => $admin->getUsername(),
             ]);
         }
+    }
+
+    public function getDashboardStats(): Response
+    {
+        return new JsonResponse(
+            $this->dashboardService->getDashboardStats()
+        );
+    }
+
+    public function getProducts(): Response
+    {
+        return new JsonResponse([
+            ['id' => 1, 'name' => 'Product 1', 'price' => 10.99],
+            ['id' => 2, 'name' => 'Product 2', 'price' => 20.50]
+        ]);
+    }
+
+    public function getCategories(): Response
+    {
+        return new JsonResponse([
+
+        ]);
     }
 }

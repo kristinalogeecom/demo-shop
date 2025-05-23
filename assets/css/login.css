@@ -34,7 +34,7 @@ html, body {
 .login-container h1 {
     font-size: 32px;
     font-weight: 500;
-    color: #2a5dba;
+    color: #1f2937;
     margin-bottom: 30px;
     letter-spacing: -0.5px;
 }
@@ -55,7 +55,7 @@ html, body {
 }
 
 .login-container input:focus {
-    border-color: #2563eb;
+    border-color: #1f2937;
     background-color: #ffffff;
     outline: none;
 }
@@ -63,7 +63,7 @@ html, body {
 .login-container button {
     padding: 12px 20px;
     font-size: 16px;
-    background-color: #2563eb;
+    background-color: #1f2937;
     color: white;
     border: none;
     border-radius: 8px;
@@ -73,7 +73,7 @@ html, body {
 }
 
 .login-container button:hover {
-    background: linear-gradient(to right, #2563eb, #1e40af);
+    background: linear-gradient(to right, #1f2937, #080c0e);
 }
 
 .error-box {

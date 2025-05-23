@@ -1,6 +1,24 @@
-<link rel="stylesheet" href="/assets/css/visitor.css">
-
-<div class="visitor-container">
-    <h1>Welcome to the Admin Dashboard</h1>
-    <p>You are successfully logged in.</p>
+<link rel="stylesheet" href="/assets/css/dashboard.css">
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Demo Shop</h2>
+        </div>
+        <ul>
+            <li><a href="#" data-route="dashboard" class="active">Dashboard</a></li>
+            <li><a href="#" data-route="products">Products</a></li>
+            <li><a href="#" data-route="categories">Product Categories</a></li>
+        </ul>
+    </aside>
+    <main class="main-content" id="app">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+        </div>
+        <div class="stats-container" id="stats">
+            <!-- Content will be loaded here by JavaScript -->
+        </div>
+    </main>
 </div>
+
+<script type="module" src="/assets/js/router.js"></script>
+<script type="module" src="/assets/js/dashboard.js"></script>

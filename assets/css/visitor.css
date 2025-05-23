@@ -34,7 +34,7 @@ html, body {
 .visitor-container h1 {
     font-size: 40px;
     font-weight: 500;
-    color: #2a5dba;
+    color: #1f2937;
     margin-bottom: 24px;
     letter-spacing: -0.5px;
 }
@@ -54,7 +54,7 @@ html, body {
     font-size: 16px;
     font-weight: 500;
     color: #ffffff;
-    background: #2563eb;
+    background: #1f2937;
     border: none;
     border-radius: 8px;
     text-decoration: none;
@@ -62,5 +62,5 @@ html, body {
 }
 
 .visitor-container .btn:hover {
-    background: linear-gradient(to right, #2563eb, #1e40af);
+    background: linear-gradient(to right, #1f2937, #080c0e);
 }
