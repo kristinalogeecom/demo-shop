@@ -137,12 +137,34 @@ class WebRouteRegistrar
                 }
             });
 
+            /**
+             * Category Management Routes
+             */
+
+            // Get all categories (hierarchical)
             $router->addRoute('GET', '/admin/categories', function() use ($controller) {
                 try {
                     $middlewareChain = new AdminAuthMiddleware();
                     $middlewareChain->check(ServiceRegistry::get(Request::class));
 
                     $response = $controller->getCategories();
+                    $response->send();
+                } catch (Exception $e) {
+                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
+                }
+            });
+
+            // Get single category details
+            $router->addRoute('GET', '/admin/categories/{id}', function() use ($controller) {
+                try {
+                    $request = ServiceRegistry::get(Request::class);
+
+                    $middlewareChain = new AdminAuthMiddleware();
+                    $middlewareChain->check($request);
+
+                    $id = $request->param('id');
+
+                    $response = $controller->getCategory($id);
                     $response->send();
                 } catch (Exception $e) {
                     (new JsonResponse(['error' => $e->getMessage()], 401))->send();

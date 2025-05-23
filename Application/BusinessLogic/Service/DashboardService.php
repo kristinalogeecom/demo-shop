@@ -3,6 +3,7 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
+use Exception;
 
 class DashboardService implements DashboardServiceInterface
 {
@@ -26,4 +27,20 @@ class DashboardService implements DashboardServiceInterface
             'mostViewedProductViews' => $this->dashboardRepository->getMostViewedProductViews(),
         ];
     }
+
+    public function getAllCategories(): array
+    {
+        return $this->dashboardRepository->getCategories();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getCategoryById($id): array
+    {
+        return $this->dashboardRepository->getCategoryById($id);
+    }
+
+
+
 }

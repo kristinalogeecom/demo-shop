@@ -10,6 +10,8 @@ use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
+use Exception;
+use function Symfony\Component\Translation\t;
 
 /**
  * Controller responsible for handling authentication logic.
@@ -67,8 +69,21 @@ class AdminController
 
     public function getCategories(): Response
     {
-        return new JsonResponse([
+        try {
+            $categories = $this->dashboardService->getAllCategories();
+            return new JsonResponse($categories);
+        } catch (Exception $e) {
+            return new JsonResponse(['errors' => $e->getMessage()], 500);
+        }
+    }
 
-        ]);
+    public function getCategory($id): Response
+    {
+        try {
+            $category = $this->dashboardService->getCategoryById($id);
+            return new JsonResponse($category);
+        } catch (Exception $e) {
+            return new JsonResponse(['errors' => $e->getMessage()], 500);
+        }
     }
 }
