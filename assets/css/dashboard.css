@@ -1,0 +1,301 @@
+/* Base Styles */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --light-gray: #ecf0f1;
+    --dark-gray: #7f8c8d;
+    --white: #ffffff;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Header Banner */
+.header-banner {
+    background-color: var(--secondary-color);
+    width: 100%;
+    padding: 15px 0;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-banner h1 {
+    color: var(--white);
+    font-size: 22px;
+    font-weight: 600;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 220px; /* Smanjena širina */
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 15px 0;
+    position: fixed;
+    height: calc(100vh - 60px); /* Oduzimamo header */
+    top: 60px; /* Header height */
+    box-shadow: var(--box-shadow);
+    z-index: 100;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 5px;
+}
+
+.sidebar a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px 20px;
+    display: block;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--primary-color);
+}
+
+.sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.sidebar a:not(.active):hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-left: 220px; /* Podešeno sa sidebarom */
+    padding: 25px;
+    width: calc(100% - 220px);
+    min-height: calc(100vh - 60px);
+}
+
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Dashboard Stats */
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    padding-top: 60px; /* Header height */
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+    max-width: 100%;
+}
+
+.stats-row {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-item {
+    flex: 1;
+    min-width: 0; /* Omogućava skraćivanje */
+    padding: 15px;
+}
+
+.stat-item label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.stat-item input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: var(--light-gray);
+    font-size: 16px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+
+/* Responsive za manje ekrane */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 180px;
+    }
+    .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+    }
+    .stats-row {
+        flex-wrap: wrap;
+    }
+    .stat-item {
+        min-width: calc(50% - 15px);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    .stats-row {
+        flex-direction: column;
+    }
+    .stat-item {
+        min-width: 100%;
+    }
+}
+
+/* Button Styles */
+.btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: var(--accent-color);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: #2ecc71;
+    color: var(--white);
+}
+
+.btn-success:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* Table Styles */
+.data-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    max-width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 800px; /* Minimalna širina tabele */
+}
+
+.data-table th {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+/* Loading State */
+.loading {
+    padding: 20px;
+    text-align: center;
+    color: var(--dark-gray);
+}
+
+/* Error State */
+.error {
+    padding: 20px;
+    background-color: #fdecea;
+    color: var(--accent-color);
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}

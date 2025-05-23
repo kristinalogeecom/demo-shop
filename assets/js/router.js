@@ -1,7 +1,6 @@
 class Router {
     constructor() {
         this.routes = {};
-        this.currentRoute = '';
         this.initEventListeners();
         this.navigateTo(location.hash.slice(1) || 'dashboard');
 
@@ -13,8 +12,13 @@ class Router {
 
     navigateTo(route) {
         if (this.routes[route]) {
-            this.currentRoute = route;
             history.pushState({}, '', `#${route}`);
+
+            // Update active menu item
+            document.querySelectorAll('[data-route]').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('data-route') === route);
+            });
+
             this.routes[route]();
         }
     }
