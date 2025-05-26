@@ -18,8 +18,9 @@ export async function loadCategoriesView() {
                     ${renderCategoryTree(categories)}
                 </div>
                 <div class="category-details" id="categoryDetails">
-                    <div class="no-selection">
-                        <i class="fas fa-info-circle"></i> Select a category to view details
+                    <div class="no-selection-message">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Select a category to view details</p>
                     </div>
                 </div>
             </div>
@@ -31,6 +32,22 @@ export async function loadCategoriesView() {
                 loadCategoryDetails(categoryId);
                 document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
                 e.currentTarget.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.expand-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const categoryId = e.target.dataset.id;
+                const wrapper = e.target.closest('.category-item-wrapper');
+                const childContainer = wrapper.querySelector('.category-children');
+
+                if (!childContainer) return;
+
+                const isVisible = childContainer.style.display === 'block';
+                childContainer.style.display = isVisible ? 'none' : 'block';
+
+                e.target.classList.toggle('fa-plus-square', isVisible);
+                e.target.classList.toggle('fa-minus-square', !isVisible);
             });
         });
 
@@ -51,19 +68,23 @@ export async function loadCategoriesView() {
         `;
     }
 }
-
 function renderCategoryTree(categories, level = 0) {
-    return categories.map(category => `
-        <div class="category-item-wrapper" style="margin-left: ${level * 20}px">
-            <div class="category-item" data-id="${category.id}">
-                <div>
-                    <i class="fas ${category.children?.length > 0 ? 'fa-folder-open' : 'fa-folder'}"></i>
-                    ${category.name}
+    return categories.map(category => {
+        const hasChildren = category.children?.length > 0;
+        const childTree = hasChildren ? `<div class="category-children" style="display:none;">${renderCategoryTree(category.children, level + 1)}</div>` : '';
+
+        return `
+            <div class="category-item-wrapper" data-id="${category.id}" style="margin-left: ${level * 10}px">
+                <div class="category-item" data-id="${category.id}">
+                    <div>
+                        ${hasChildren ? `<i class="expand-icon fas fa-plus-square" data-id="${category.id}"></i>` : '<span class="expand-icon"></span>'}
+                        <span class="category-name">${category.name}</span>
+                    </div>
                 </div>
+                ${childTree}
             </div>
-            ${category.children?.length > 0 ? renderCategoryTree(category.children, level + 1) : ''}
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function loadCategoryDetails(categoryId) {
@@ -172,7 +193,13 @@ async function renderCategoryFormInPanel(categoryId = null, parentId = null) {
         if (selectedCategoryId) {
             await loadCategoryDetails(selectedCategoryId);
         } else {
-            panel.innerHTML = `<div class="no-selection"><i class="fas fa-info-circle"></i> Select a category to view details</div>`;
+            panel.innerHTML = `
+                <div class="no-selection-message">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Select a category to view details</p>
+                </div>
+            `;
+
         }
     });
 

@@ -481,17 +481,25 @@ body {
     background-color: #d5dbdb;
 }
 
-.no-selection {
+.no-selection-message {
     text-align: center;
-    padding: 40px;
     color: var(--dark-gray);
+    padding: 60px 20px;
 }
 
-.no-selection i {
+.no-selection-message i {
     font-size: 48px;
-    margin-bottom: 15px;
     color: #bdc3c7;
+    margin-bottom: 15px;
+    display: block;
 }
+
+.no-selection-message p {
+    font-size: 16px;
+    color: var(--dark-gray);
+    margin: 0;
+}
+
 
 .category-details {
     padding: 20px;
@@ -530,4 +538,11 @@ body {
 .disabled-overlay {
     pointer-events: none;
     opacity: 0.4;
+}
+
+.expand-icon {
+    cursor: pointer;
+    margin-right: 6px;
+    font-weight: bold;
+    color: var(--secondary-color);
 }
