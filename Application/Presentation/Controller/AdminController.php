@@ -3,6 +3,7 @@
 namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Application\BusinessLogic\Model\Admin;
+use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
 use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
 use DemoShop\Infrastructure\Http\Request;
@@ -11,7 +12,6 @@ use DemoShop\Infrastructure\Response\Response;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
 use Exception;
-use function Symfony\Component\Translation\t;
 
 /**
  * Controller responsible for handling authentication logic.
@@ -86,4 +86,23 @@ class AdminController
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
     }
+
+    public function saveCategory(Request $request): Response
+    {
+        try {
+            $category = new CategoryModel(
+                $request->input('id') !== null ? (int) $request->input('id') : null,
+                $request->input('parent_id') !== null ? (int) $request->input('parent_id') : null,
+                $request->input('name'),
+                $request->input('code'),
+                $request->input('description')
+            );
+
+            $category = $this->dashboardService->saveCategory($category);
+            return new JsonResponse(['success' => true, 'category' => $category]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
+
 }

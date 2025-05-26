@@ -171,6 +171,20 @@ class WebRouteRegistrar
                 }
             });
 
+            // Save category (create/update)
+            $router->addRoute('POST', '/admin/categories/save', function() use ($controller) {
+                try {
+                    $middlewareChain = new AdminAuthMiddleware();
+                    $middlewareChain->check(ServiceRegistry::get(Request::class));
+                    $request = ServiceRegistry::get(Request::class);
+
+                    $response = $controller->saveCategory($request);
+                    $response->send();
+                } catch (Exception $e) {
+                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
+                }
+            });
+
 
         } catch (Exception $e) {
             error_log('Route registration error: ' . $e->getMessage());

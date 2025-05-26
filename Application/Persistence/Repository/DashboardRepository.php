@@ -2,6 +2,7 @@
 
 namespace DemoShop\Application\Persistence\Repository;
 
+use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\Persistence\Model\Category;
 use Exception;
 
@@ -54,6 +55,33 @@ class DashboardRepository
 
         return $category->toArray();
     }
+
+
+    /**
+     * @param CategoryModel $categoryModel
+     * @return array
+     * @throws Exception
+     */
+    public function saveCategory(CategoryModel $categoryModel): array
+    {
+        $category = $categoryModel->getId()
+            ? Category::find($categoryModel->getId())
+            : new Category();
+
+        if (!$category) {
+            throw new Exception('Category not found');
+        }
+
+        $category->fill([
+            'parent_id' => $categoryModel->getParentId(),
+            'name' => $categoryModel->getName(),
+            'code' => $categoryModel->getCode(),
+            'description' => $categoryModel->getDescription(),
+        ])->save();
+
+        return $category->fresh()->toArray();
+    }
+
 
     private function buildTree(array $categories, $parentId = null): array
     {

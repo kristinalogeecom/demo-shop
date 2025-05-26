@@ -22,8 +22,15 @@ class Request
     {
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $this->body = $_POST;
         $this->queryParams = $_GET;
+
+        if ($this->isJson()) {
+            $raw = file_get_contents('php://input');
+            $decoded = json_decode($raw, true);
+            $this->body = is_array($decoded) ? $decoded : [];
+        } else {
+            $this->body = $_POST;
+        }
     }
 
     /**
@@ -96,4 +103,53 @@ class Request
     {
         return $this->routeParams[$key] ?? $default;
     }
+
+    /**
+     * Checks if the request is JSON
+     *
+     * @return bool
+     */
+    public function isJson(): bool
+    {
+        return isset($_SERVER['CONTENT_TYPE']) &&
+            str_starts_with($_SERVER['CONTENT_TYPE'], 'application/json');
+    }
+
+    /**
+     * Returns all data from the body
+     *
+     * @return array
+     */
+    public function all(): array
+    {
+        return $this->body;
+    }
+
+    /**
+     * Returns only specific fields
+     *
+     * @param array $keys
+     * @return array
+     */
+    public function only(array $keys): array
+    {
+        return array_filter(
+            $this->body,
+            fn($key) => in_array($key, $keys),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
+     * Checks if a field is empty and exists
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function has(string $key): bool
+    {
+        return isset($this->body[$key]) && trim($this->body[$key]) !== '';
+    }
+
+
 }

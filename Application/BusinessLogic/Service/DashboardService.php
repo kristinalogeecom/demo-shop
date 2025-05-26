@@ -2,6 +2,8 @@
 
 namespace DemoShop\Application\BusinessLogic\Service;
 
+use DemoShop\Application\Persistence\Model\Category;
+use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
 use Exception;
 
@@ -39,6 +41,32 @@ class DashboardService implements DashboardServiceInterface
     public function getCategoryById($id): array
     {
         return $this->dashboardRepository->getCategoryById($id);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function saveCategory(CategoryModel $category): array
+    {
+        $name = trim($category->getName());
+
+        if ($name === '') {
+            throw new Exception('Category name is required');
+        }
+
+        $duplicateExists = Category::where('name', $category->getName())
+            ->where('parent_id', $category->getParentId())
+            ->when(
+                $category->getId() !== null,
+                fn($q) => $q->where('id', '!=', $category->getId())
+            )
+            ->exists();
+
+        if ($duplicateExists) {
+            throw new Exception('Category with this name already exists in this parent category');
+        }
+
+        return $this->dashboardRepository->saveCategory($category);
     }
 
 

@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @method static where(string $string, mixed $parent_id)
+ * @method static find(mixed $id)
+ */
 class Category extends Model
 {
     protected $table = 'categories';
@@ -58,4 +62,21 @@ class Category extends Model
     {
         return $this->children()->exists();
     }
+
+    /**
+     * Get all ancestor categories
+     */
+    public function ancestors()
+    {
+        return $this->parent ? $this->parent->with('ancestors') : null;
+    }
+
+    /**
+     * Get all descendant categories
+     */
+    public function descendants()
+    {
+        return $this->children()->with('descendants');
+    }
+
 }
