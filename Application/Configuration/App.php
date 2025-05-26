@@ -7,6 +7,7 @@ use DemoShop\Application\BusinessLogic\Service\DashboardService;
 use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
 use DemoShop\Application\Configuration\Routes\WebRouteRegistrar;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
+use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
 use DemoShop\Application\Presentation\Controller\AdminController;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
@@ -119,7 +120,10 @@ class App
         $dashboardRepository = new DashboardRepository();
         ServiceRegistry::set(DashboardRepository::class, $dashboardRepository);
 
-        $adminService = new AdminService($adminRepository);
+        $adminTokenRepository = new AdminTokenRepository();
+        ServiceRegistry::set(AdminTokenRepository::class, $adminTokenRepository);
+
+        $adminService = new AdminService($adminRepository, $adminTokenRepository);
         ServiceRegistry::set(AdminServiceInterface::class, $adminService);
 
         $dashboardService = new DashboardService($dashboardRepository);

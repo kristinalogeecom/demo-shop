@@ -10,15 +10,18 @@ class Admin
     private int $id;
     private string $username;
     private string $password;
+    private bool $rememberMe;
 
     /**
      * @param string $username
      * @param string $password
+     * @param bool $rememberMe
      */
-    public function __construct(string $username, string $password)
+    public function __construct(string $username, string $password, bool $rememberMe)
     {
         $this->username = $username;
         $this->password = $password;
+        $this->rememberMe = $rememberMe;
     }
 
     public function getId(): int
@@ -49,6 +52,16 @@ class Admin
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    public function isRememberMe(): bool
+    {
+        return $this->rememberMe;
+    }
+
+    public function setRememberMe(bool $rememberMe): void
+    {
+        $this->rememberMe = $rememberMe;
     }
 
 }

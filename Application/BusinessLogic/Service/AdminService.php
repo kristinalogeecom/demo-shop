@@ -4,6 +4,8 @@ namespace DemoShop\Application\BusinessLogic\Service;
 
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
+use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
+use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Session\SessionManager;
 
 /**
@@ -13,24 +15,23 @@ use DemoShop\Infrastructure\Session\SessionManager;
 class AdminService implements AdminServiceInterface
 {
     private AdminRepository $adminRepository;
+    private AdminTokenRepository $adminTokenRepository;
 
     /**
      * @param AdminRepository $adminRepository
+     * @param AdminTokenRepository $adminTokenRepository
      */
-    public function __construct(AdminRepository $adminRepository)
+    public function __construct(AdminRepository $adminRepository, AdminTokenRepository $adminTokenRepository)
     {
         $this->adminRepository = $adminRepository;
+        $this->adminTokenRepository = $adminTokenRepository;
     }
 
 
     /**
-     * Authenticates the admin and sets session if valid.
-     *
-     * @param Admin $admin
-     *
-     * @return bool True if authentication is successful, false otherwise
+     * Authenticates the admin and sets session and cookie if successful.
      */
-    public function attemptLogin(Admin $admin): bool
+    public function attemptLogin(Admin $admin, Request $request): bool
     {
         $adminFromDb = $this->adminRepository->findByUsername($admin->getUsername());
 
@@ -39,6 +40,21 @@ class AdminService implements AdminServiceInterface
 
             $session = SessionManager::getInstance();
             $session->set('admin_logged_in', true);
+
+            if ($request->input('remember_me')) {
+                $token = bin2hex(random_bytes(32));
+                $expires = new \DateTime('+30 days');
+
+                setcookie('admin_token', $token, [
+                    'expires' => $expires->getTimestamp(),
+                    'path' => '/',
+                    'secure' => true,
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]);
+
+                $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
+            }
 
             return true;
         }

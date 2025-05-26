@@ -92,8 +92,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     document.getElementById('cancelCategoryForm').addEventListener('click', async () => {
         enableUI();
         if (selectedCategoryId) {
-            const html = await renderCategoryDetails(selectedCategoryId, renderCategoryFormPanel, handleDeleteCategory);
-            panel.innerHTML = html;
+            panel.innerHTML = await renderCategoryDetails(selectedCategoryId, renderCategoryFormPanel, handleDeleteCategory);
         } else {
             panel.innerHTML = renderNoSelectionMessage();
         }

@@ -19,7 +19,7 @@ export function renderCategoryTree(categories, level = 0) {
     }).join('');
 }
 
-export async function renderCategoryDetails(categoryId, onEdit, onDelete) {
+export async function renderCategoryDetails(categoryId) {
     const category = await fetchCategory(categoryId);
     return `
         <h3>Selected Category</h3>

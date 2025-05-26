@@ -2,6 +2,8 @@
 
 namespace DemoShop\Infrastructure\Middleware;
 
+use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Session\SessionManager;
 use Exception;
@@ -30,14 +32,26 @@ class AdminAuthMiddleware extends Middleware
     {
         $session = SessionManager::getInstance();
 
-        // Allow login form to go through without being authenticated
         if ($request->url() === '/admin/login' && $request->method() === 'POST') {
             return;
         }
 
-        // Block access to other admin routes if not logged in
-        if(empty($session->get('admin_logged_in'))) {
-            throw new Exception('Unauthorized. Please log in first.');
+        if ($session->get('admin_logged_in')) {
+            return;
         }
+
+        $cookieToken = $_COOKIE['admin_token'] ?? null;
+
+        if ($cookieToken) {
+            $tokenRepo = ServiceRegistry::get(AdminTokenRepository::class);
+            $adminId = $tokenRepo->findAdminIdByToken($cookieToken);
+
+            if ($adminId) {
+                $session->set('admin_logged_in', true);
+                return;
+            }
+        }
+
+        throw new Exception('Unauthorized. Please log in first.');
     }
 }

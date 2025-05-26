@@ -38,9 +38,10 @@ class AdminController
         $admin = new Admin(
             $request->input('username'),
             $request->input('password'),
+            $request->input('remember_me') === 'on'
         );
 
-        $success = $this->adminService->attemptLogin($admin);
+        $success = $this->adminService->attemptLogin($admin, $request);
 
         if($success) {
             return new RedirectResponse('/admin/dashboard', 302);
