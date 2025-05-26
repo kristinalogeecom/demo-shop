@@ -14,7 +14,7 @@ interface DashboardServiceInterface
 
     public function saveCategory(CategoryModel $category): CategoryModel;
 
-    public function deleteCategory(int $id): void;
+    public function deleteCategory(int $id): bool;
 
     public function getFlatCategories(): array;
 

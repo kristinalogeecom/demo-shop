@@ -71,23 +71,39 @@ class DashboardService implements DashboardServiceInterface
 
 
     /**
-     * @param int $id
-     * @return void
      * @throws Exception
      */
-    public function deleteCategory(int $id): void
+    public function deleteCategory(int $id): bool
     {
-        $category = Category::with('products')->find($id);
+        $category = Category::with('products', 'children')->find($id);
 
-        if(!$category) {
+        if (!$category || !$category instanceof Category) {
             throw new Exception('Category not found');
         }
 
-        if($category->products->count() > 0) {
-            throw new Exception('Cannot delete category that has products.');
+        if ($category->hasProducts()) {
+            throw new Exception("Cannot delete category '{$category->name}' because it has products.");
         }
 
-        $this->dashboardRepository->deleteCategory($id);
+        $this->checkChildrenForProducts($category);
+
+        return $this->dashboardRepository->deleteCategory($id);
+    }
+
+    /**
+     * @param Category $category
+     * @return void
+     * @throws Exception
+     */
+    private function checkChildrenForProducts(Category $category): void
+    {
+        foreach ($category->children()->with('products', 'children')->get() as $child) {
+            if ($child->hasProducts()) {
+                throw new Exception("Cannot delete subcategory '{$child->name}' because it has products.");
+            }
+
+            $this->checkChildrenForProducts($child);
+        }
     }
 
     public function getFlatCategories(): array

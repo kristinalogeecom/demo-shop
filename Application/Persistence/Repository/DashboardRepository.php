@@ -56,6 +56,14 @@ class DashboardRepository
         return $category->toArray();
     }
 
+    public function getFlatCategories()
+    {
+        return Category::select('id', 'name')
+            ->orderBy('name')
+            ->get()
+            ->toArray();
+    }
+
 
     /**
      * @param CategoryModel $categoryModel
@@ -93,18 +101,20 @@ class DashboardRepository
 
     /**
      * @param int $id
-     * @return void
+     * @return bool
      * @throws Exception
      */
-    public function deleteCategory(int $id): void
+    public function deleteCategory(int $id): bool
     {
         $category = Category::find($id);
 
         if (!$category) {
-            throw new Exception('Category not found');
+            return false;
         }
 
-        $category->delete();
+        $this->deleteSubcategories($category);
+
+        return $category->delete();
     }
 
 
@@ -125,12 +135,13 @@ class DashboardRepository
         return $branch;
     }
 
-    public function getFlatCategories()
+
+    private function deleteSubcategories($category): void
     {
-        return Category::select('id', 'name')
-            ->orderBy('name')
-            ->get()
-            ->toArray();
+        foreach ($category->children()->get() as $child) {
+            $this->deleteSubcategories($child);
+            $child->delete();
+        }
     }
 
 
