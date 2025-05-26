@@ -91,6 +91,23 @@ class DashboardRepository
     }
 
 
+    /**
+     * @param int $id
+     * @return void
+     * @throws Exception
+     */
+    public function deleteCategory(int $id): void
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            throw new Exception('Category not found');
+        }
+
+        $category->delete();
+    }
+
+
     private function buildTree(array $categories, $parentId = null): array
     {
         $branch = [];
@@ -107,5 +124,6 @@ class DashboardRepository
 
         return $branch;
     }
+
 
 }

@@ -70,5 +70,23 @@ class DashboardService implements DashboardServiceInterface
     }
 
 
+    /**
+     * @param int $id
+     * @return void
+     * @throws Exception
+     */
+    public function deleteCategory(int $id): void
+    {
+        $category = Category::with('products')->find($id);
 
+        if(!$category) {
+            throw new Exception('Category not found');
+        }
+
+        if($category->products->count() > 0) {
+            throw new Exception('Cannot delete category that has products.');
+        }
+
+        $this->dashboardRepository->deleteCategory($id);
+    }
 }

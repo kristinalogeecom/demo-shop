@@ -526,3 +526,8 @@ body {
     resize: vertical;
     min-height: 80px;
 }
+
+.disabled-overlay {
+    pointer-events: none;
+    opacity: 0.4;
+}

@@ -106,7 +106,15 @@ async function loadCategoryDetails(categoryId) {
 }
 
 function renderCategoryFormInPanel(categoryId = null, parentId = null) {
+
+    // Disable all other UI parts
+    document.querySelector('.categories-tree').classList.add('disabled-overlay');
+    document.querySelector('.action-buttons').classList.add('disabled-overlay');
+
     const panel = document.getElementById('categoryDetails');
+
+    const selectedCategoryId = document.querySelector('.category-item.active')?.dataset.id || null;
+
 
     panel.innerHTML = `
         <h3>${categoryId ? 'Edit Category' : parentId ? 'Add Subcategory' : 'Add Root Category'}</h3>
@@ -135,10 +143,17 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
             </div>
         </form>
     `;
+    document.getElementById('cancelCategoryForm').addEventListener('click', async () => {
+        document.querySelector('.categories-tree').classList.remove('disabled-overlay');
+        document.querySelector('.action-buttons').classList.remove('disabled-overlay');
 
-    document.getElementById('cancelCategoryForm').addEventListener('click', () => {
-        panel.innerHTML = `<div class="no-selection"><i class="fas fa-info-circle"></i> Select a category to view details</div>`;
+        if (selectedCategoryId) {
+            await loadCategoryDetails(selectedCategoryId);
+        } else {
+            panel.innerHTML = `<div class="no-selection"><i class="fas fa-info-circle"></i> Select a category to view details</div>`;
+        }
     });
+
 
     document.getElementById('inlineCategoryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -151,6 +166,10 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
         };
         await saveCategory(data);
         await loadCategoriesView();
+
+        document.querySelector('.categories-tree').classList.remove('disabled-overlay');
+        document.querySelector('.action-buttons').classList.remove('disabled-overlay');
+
     });
 
     if (categoryId) {
@@ -182,6 +201,19 @@ async function loadCategoryData(categoryId) {
     return await get(`/admin/categories/${categoryId}`);
 }
 
-function deleteCategory(categoryId) {
-    console.log('Deleting category ID', categoryId);
+async function deleteCategory(categoryId) {
+    const confirmed = confirm('Are you sure you want to delete this category?');
+    if(!confirmed) return;
+
+    try {
+        const response = await post('/admin/categories/delete', { id: categoryId });
+        if(response.success) {
+            await loadCategoriesView();
+        } else {
+            alert(response.error || 'Deletion failed.');
+        }
+    } catch (error) {
+        console.error('Delete error: ', error);
+        alert('Request failed: ' + error.message);
+    }
 }

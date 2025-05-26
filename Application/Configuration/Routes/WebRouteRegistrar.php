@@ -125,6 +125,10 @@ class WebRouteRegistrar
                 }
             });
 
+            /**
+             * Product Management Routes
+             */
+
             $router->addRoute('GET', '/admin/products', function() use ($controller) {
                 try {
                     $middlewareChain = new AdminAuthMiddleware();
@@ -179,6 +183,20 @@ class WebRouteRegistrar
                     $request = ServiceRegistry::get(Request::class);
 
                     $response = $controller->saveCategory($request);
+                    $response->send();
+                } catch (Exception $e) {
+                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
+                }
+            });
+
+            // Delete category
+            $router->addRoute('POST', '/admin/categories/delete', function() use ($controller) {
+                try {
+                    $middlewareChain = new AdminAuthMiddleware();
+                    $middlewareChain->check(ServiceRegistry::get(Request::class));
+
+                    $request = ServiceRegistry::get(Request::class);
+                    $response = $controller->deleteCategory($request);
                     $response->send();
                 } catch (Exception $e) {
                     (new JsonResponse(['error' => $e->getMessage()], 401))->send();

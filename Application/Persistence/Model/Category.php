@@ -63,20 +63,5 @@ class Category extends Model
         return $this->children()->exists();
     }
 
-    /**
-     * Get all ancestor categories
-     */
-    public function ancestors()
-    {
-        return $this->parent ? $this->parent->with('ancestors') : null;
-    }
-
-    /**
-     * Get all descendant categories
-     */
-    public function descendants()
-    {
-        return $this->children()->with('descendants');
-    }
 
 }

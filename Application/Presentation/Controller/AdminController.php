@@ -110,4 +110,23 @@ class AdminController
         }
     }
 
+    public function deleteCategory(Request $request): Response
+    {
+        $id = $request->input('id');
+
+        if(!$id) {
+            return new JsonResponse(['error' => 'Category ID is required.'], 400);
+        }
+
+        try {
+            $this->dashboardService->deleteCategory($id);
+            return new JsonResponse(['success' => true]);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+    }
+
 }
