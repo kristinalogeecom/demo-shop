@@ -7,28 +7,48 @@ class CategoryModel
     private ?int $id;
     private ?int $parentId;
     private string $name;
-    private string $code;
-    private string $description;
+    private ?string $code;
+    private ?string $description;
 
-    /**
-     * @param ?int $id
-     * @param ?int $parentId
-     * @param string $name
-     * @param string $code
-     * @param string $description
-     */
-    public function __construct(?int $id, ?int $parentId, string $name, string $code, string $description)
-    {
+    public function __construct(
+        ?int $id,
+        ?int $parentId,
+        string $name,
+        ?string $code = null,
+        ?string $description = null
+    ) {
         $this->id = $id;
         $this->parentId = $parentId;
-        $this->name = $name;
-        $this->code = $code;
-        $this->description = $description;
+        $this->name = trim($name);
+        $this->code = $code !== '' ? $code : null;
+        $this->description = $description !== '' ? $description : null;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            isset($data['id']) && $data['id'] !== '' ? (int)$data['id'] : null,
+            isset($data['parent_id']) && $data['parent_id'] !== '' ? (int)$data['parent_id'] : null,
+            $data['name'] ?? '',
+            $data['code'] ?? null,
+            $data['description'] ?? null
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'parent_id' => $this->parentId,
+            'name' => $this->name,
+            'code' => $this->code,
+            'description' => $this->description,
+        ];
     }
 
     public function getId(): ?int
     {
-        return $this->id !== null ? (int) $this->id : null;
+        return $this->id;
     }
 
     public function setId(?int $id): void
@@ -53,28 +73,26 @@ class CategoryModel
 
     public function setName(string $name): void
     {
-        $this->name = $name;
+        $this->name = trim($name);
     }
 
-    public function getCode(): string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    public function setCode(string $code): void
+    public function setCode(?string $code): void
     {
-        $this->code = $code;
+        $this->code = $code !== '' ? $code : null;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
-        $this->description = $description;
+        $this->description = $description !== '' ? $description : null;
     }
-
-
 }

@@ -46,7 +46,7 @@ class DashboardService implements DashboardServiceInterface
     /**
      * @throws Exception
      */
-    public function saveCategory(CategoryModel $category): array
+    public function saveCategory(CategoryModel $category): CategoryModel
     {
         $name = trim($category->getName());
 

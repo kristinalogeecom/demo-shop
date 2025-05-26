@@ -87,21 +87,26 @@ class AdminController
         }
     }
 
+
     public function saveCategory(Request $request): Response
     {
         try {
-            $category = new CategoryModel(
-                $request->input('id') !== null ? (int) $request->input('id') : null,
-                $request->input('parent_id') !== null ? (int) $request->input('parent_id') : null,
-                $request->input('name'),
-                $request->input('code'),
-                $request->input('description')
+            $category = CategoryModel::fromArray(
+                $request->only(['id', 'parent_id', 'name', 'code', 'description'])
             );
 
-            $category = $this->dashboardService->saveCategory($category);
-            return new JsonResponse(['success' => true, 'category' => $category]);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
+            $saved = $this->dashboardService->saveCategory($category);
+
+            return new JsonResponse([
+                'success' => true,
+                'category' => $saved->toArray()
+            ]);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 400);
         }
     }
 

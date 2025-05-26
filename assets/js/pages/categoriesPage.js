@@ -158,6 +158,7 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
             document.getElementById('categoryName').value = category.name;
             document.getElementById('categoryCode').value = category.code || '';
             document.getElementById('categoryDescription').value = category.description || '';
+            document.getElementById('parentId').value = category.parent_id ?? '';
         });
     }
 }

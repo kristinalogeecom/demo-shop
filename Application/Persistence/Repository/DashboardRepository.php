@@ -59,10 +59,10 @@ class DashboardRepository
 
     /**
      * @param CategoryModel $categoryModel
-     * @return array
+     * @return CategoryModel
      * @throws Exception
      */
-    public function saveCategory(CategoryModel $categoryModel): array
+    public function saveCategory(CategoryModel $categoryModel): CategoryModel
     {
         $category = $categoryModel->getId()
             ? Category::find($categoryModel->getId())
@@ -73,13 +73,21 @@ class DashboardRepository
         }
 
         $category->fill([
-            'parent_id' => $categoryModel->getParentId(),
+            'parent_id' => $categoryModel->getParentId() !== '' ? $categoryModel->getParentId() : null,
             'name' => $categoryModel->getName(),
             'code' => $categoryModel->getCode(),
             'description' => $categoryModel->getDescription(),
         ])->save();
 
-        return $category->fresh()->toArray();
+        $category = $category->fresh();
+
+        return new CategoryModel(
+            $category->id,
+            $category->parent_id,
+            $category->name,
+            $category->code,
+            $category->description
+        );
     }
 
 
