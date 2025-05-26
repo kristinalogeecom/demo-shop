@@ -16,4 +16,6 @@ interface DashboardServiceInterface
 
     public function deleteCategory(int $id): void;
 
+    public function getFlatCategories(): array;
+
 }

@@ -105,7 +105,7 @@ async function loadCategoryDetails(categoryId) {
     }
 }
 
-function renderCategoryFormInPanel(categoryId = null, parentId = null) {
+async function renderCategoryFormInPanel(categoryId = null, parentId = null) {
 
     // Disable all other UI parts
     document.querySelector('.categories-tree').classList.add('disabled-overlay');
@@ -115,16 +115,23 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
 
     const selectedCategoryId = document.querySelector('.category-item.active')?.dataset.id || null;
 
+    const allCategories = await get('/admin/categories-flat');
 
     panel.innerHTML = `
         <h3>${categoryId ? 'Edit Category' : parentId ? 'Add Subcategory' : 'Add Root Category'}</h3>
         <form id="inlineCategoryForm">
             <input type="hidden" id="categoryId" value="${categoryId || ''}">
-            <input type="hidden" id="parentId" value="${parentId || ''}">
 
             <div class="detail-row">
                 <label class="detail-label" for="categoryName">Title:</label>
                 <input class="detail-input" type="text" id="categoryName" required>
+            </div>
+            <div class="detail-row">
+                <label class="detail-label" for="parentSelect">Parent category:</label>
+                <select class="detail-input" id="parentSelect">
+                    <option value="">Root Category</option>
+                    ${allCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('')}
+                </select>
             </div>
             <div class="detail-row">
                 <label class="detail-label" for="categoryCode">Code:</label>
@@ -143,6 +150,21 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
             </div>
         </form>
     `;
+
+    const parentSelect = document.getElementById('parentSelect');
+
+
+    if (!categoryId && !parentId) {
+        parentSelect.disabled = true;
+        parentSelect.value = '';
+    }
+
+
+    if (!categoryId && parentId) {
+        parentSelect.disabled = true;
+        parentSelect.value = parentId;
+    }
+
     document.getElementById('cancelCategoryForm').addEventListener('click', async () => {
         document.querySelector('.categories-tree').classList.remove('disabled-overlay');
         document.querySelector('.action-buttons').classList.remove('disabled-overlay');
@@ -159,7 +181,7 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
         e.preventDefault();
         const data = {
             id: document.getElementById('categoryId').value || null,
-            parent_id: document.getElementById('parentId').value || null,
+            parent_id: document.getElementById('parentSelect').value || null,
             name: document.getElementById('categoryName').value,
             code: document.getElementById('categoryCode').value,
             description: document.getElementById('categoryDescription').value
@@ -177,7 +199,8 @@ function renderCategoryFormInPanel(categoryId = null, parentId = null) {
             document.getElementById('categoryName').value = category.name;
             document.getElementById('categoryCode').value = category.code || '';
             document.getElementById('categoryDescription').value = category.description || '';
-            document.getElementById('parentId').value = category.parent_id ?? '';
+            document.getElementById('parentSelect').value = category.parent_id ?? '';
+            document.getElementById('parentSelect').disabled = false;
         });
     }
 }

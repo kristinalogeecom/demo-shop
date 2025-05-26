@@ -158,6 +158,19 @@ class WebRouteRegistrar
                 }
             });
 
+            $router->addRoute('GET', '/admin/categories-flat', function () use ($controller) {
+                try {
+                    $middlewareChain = new AdminAuthMiddleware();
+                    $middlewareChain->check(ServiceRegistry::get(Request::class));
+
+                    $response = $controller->getFlatCategories();
+                    $response->send();
+                } catch (Exception $e) {
+                    (new JsonResponse(['error' => $e->getMessage()], 400))->send();
+                }
+            });
+
+
             // Get single category details
             $router->addRoute('GET', '/admin/categories/{id}', function() use ($controller) {
                 try {

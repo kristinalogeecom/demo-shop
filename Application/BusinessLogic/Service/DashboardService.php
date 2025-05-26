@@ -89,4 +89,9 @@ class DashboardService implements DashboardServiceInterface
 
         $this->dashboardRepository->deleteCategory($id);
     }
+
+    public function getFlatCategories(): array
+    {
+        return $this->dashboardRepository->getFlatCategories();
+    }
 }

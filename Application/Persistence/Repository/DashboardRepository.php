@@ -125,5 +125,13 @@ class DashboardRepository
         return $branch;
     }
 
+    public function getFlatCategories()
+    {
+        return Category::select('id', 'name')
+            ->orderBy('name')
+            ->get()
+            ->toArray();
+    }
+
 
 }

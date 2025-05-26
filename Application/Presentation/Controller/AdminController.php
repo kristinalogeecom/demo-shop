@@ -129,4 +129,14 @@ class AdminController
 
     }
 
+    public function getFlatCategories(): Response
+    {
+        try {
+            $categories = $this->dashboardService->getFlatCategories();
+            return new JsonResponse($categories);
+        } catch (Exception $e) {
+            return new JsonResponse(['errors' => $e->getMessage()], 500);
+        }
+    }
+
 }

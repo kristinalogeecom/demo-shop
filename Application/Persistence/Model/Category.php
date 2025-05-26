@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @method static where(string $string, mixed $parent_id)
  * @method static find(mixed $id)
+ * @method static select(string $string, string $string1)
  */
 class Category extends Model
 {
