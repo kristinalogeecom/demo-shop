@@ -72,8 +72,10 @@ class AdminController
     {
         try {
             $categories = $this->dashboardService->getAllCategories();
+
             return new JsonResponse($categories);
         } catch (Exception $e) {
+
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
     }
@@ -82,8 +84,10 @@ class AdminController
     {
         try {
             $category = $this->dashboardService->getCategoryById($id);
+
             return new JsonResponse($category);
         } catch (Exception $e) {
+
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
     }
@@ -103,6 +107,7 @@ class AdminController
                 'category' => $saved->toArray()
             ]);
         } catch (\Throwable $e) {
+
             return new JsonResponse([
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -121,8 +126,10 @@ class AdminController
 
         try {
             $this->dashboardService->deleteCategory($id);
+
             return new JsonResponse(['success' => true]);
         } catch (\Throwable $e) {
+
             return new JsonResponse([
                 'error' => $e->getMessage()
             ], 500);
@@ -134,10 +141,19 @@ class AdminController
     {
         try {
             $categories = $this->dashboardService->getFlatCategories();
+
             return new JsonResponse($categories);
         } catch (Exception $e) {
+
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
+    }
+
+    public function logout(Request $request): Response
+    {
+        $this->adminService->logout($request);
+
+        return new RedirectResponse('/admin/login');
     }
 
 }

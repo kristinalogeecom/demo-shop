@@ -84,6 +84,17 @@ class WebRouteRegistrar
             });
 
             /**
+             * Admin Logout
+             */
+
+            $router->addRoute('POST', '/admin/logout', function () use ($controller) {
+                $request = ServiceRegistry::get(Request::class);
+                $response = $controller->logout($request);
+                $response->send();
+            });
+
+
+            /**
              * Error pages
              */
             $router->addRoute('GET', '/404', function () {

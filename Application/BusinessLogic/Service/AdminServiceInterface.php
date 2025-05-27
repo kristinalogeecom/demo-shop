@@ -23,4 +23,6 @@ interface AdminServiceInterface
      * @return ?string
      */
     public function validatePassword(?string $password): ?string;
+
+    public function logout(Request $request): void;
 }

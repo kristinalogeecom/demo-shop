@@ -2,6 +2,7 @@
 
 namespace DemoShop\Application\BusinessLogic\Service;
 
+use DateTime;
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
 use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
@@ -41,18 +42,10 @@ class AdminService implements AdminServiceInterface
             $session = SessionManager::getInstance();
             $session->set('admin_logged_in', true);
 
-            if ($request->input('remember_me')) {
+            if ($admin->isRememberMe()) {
                 $token = bin2hex(random_bytes(32));
-                $expires = new \DateTime('+30 days');
-
-                setcookie('admin_token', $token, [
-                    'expires' => $expires->getTimestamp(),
-                    'path' => '/',
-                    'secure' => true,
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]);
-
+                $expires = new DateTime('+30 days');
+                $this->setAuthTokenCookie($token, $expires);
                 $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
             }
 
@@ -92,5 +85,52 @@ class AdminService implements AdminServiceInterface
 
         return null;
     }
-    
+
+    public function logout(Request $request): void
+    {
+        $session = SessionManager::getInstance();
+        $session->unset('admin_logged_in');
+
+        $token = $_COOKIE['admin_token'] ?? null;
+
+        if($token) {
+            error_log("[Logout] Token received: $token");
+            $this->adminTokenRepository->deleteToken($token);
+            $this->clearAuthTokenCookie();
+        } else {
+            error_log("[Logout] No token received.");
+        }
+    }
+
+    private function setAuthTokenCookie(string $token, DateTime $expires): void
+    {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
+
+        setcookie('admin_token', $token, [
+            'expires' => $expires->getTimestamp(),
+            'path' => '/',
+            'secure' => !$isLocal,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        error_log("[Login] Token set in cookie: $token");
+    }
+
+    private function clearAuthTokenCookie(): void
+    {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
+
+        setcookie('admin_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'secure' => !$isLocal,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        error_log("[Logout] Token cookie cleared");
+    }
 }

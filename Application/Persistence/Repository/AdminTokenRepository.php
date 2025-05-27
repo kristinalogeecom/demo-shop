@@ -9,7 +9,6 @@ class AdminTokenRepository
 {
     public function storeToken(int $adminId, string $token, \Datetime $expiresAt): void
     {
-        echo "STORE TOKEN CALLED";
         AdminToken::create([
             'admin_id' => $adminId,
             'token' => $token,
@@ -25,4 +24,10 @@ class AdminTokenRepository
 
         return $tokenRecord ? $tokenRecord->admin_id : null;
     }
+
+    public function deleteToken(string $token): void
+    {
+        AdminToken::where('token', $token)->delete();
+    }
+
 }
