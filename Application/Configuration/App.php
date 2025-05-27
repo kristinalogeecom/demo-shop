@@ -123,32 +123,39 @@ class App
         ServiceRegistry::set(EncryptionInterface::class, $encryption);
 
         // Repositories
-        $authRepository = new AuthenticationRepository($encryption);
-        ServiceRegistry::set(AuthenticationRepositoryInterface::class, $authRepository);
-
-        $adminTokenRepository = new AdminTokenRepository();
-        ServiceRegistry::set(AdminTokenRepositoryInterface::class, $adminTokenRepository);
-
-        $dashboardRepository = new DashboardRepository();
-        ServiceRegistry::set(DashboardRepositoryInterface::class, $dashboardRepository);
-
-        $categoryRepository = new CategoryRepository();
-        ServiceRegistry::set(CategoryRepositoryInterface::class, $categoryRepository);
+        ServiceRegistry::set(AuthenticationRepositoryInterface::class, new AuthenticationRepository($encryption));
+        ServiceRegistry::set(AdminTokenRepositoryInterface::class, new AdminTokenRepository());
+        ServiceRegistry::set(DashboardRepositoryInterface::class, new DashboardRepository());
+        ServiceRegistry::set(CategoryRepositoryInterface::class, new CategoryRepository());
 
         // Services
-        $authService = new AuthenticationService($authRepository, $adminTokenRepository);
-        ServiceRegistry::set(AuthenticationServiceInterface::class, $authService);
+        ServiceRegistry::set(AuthenticationServiceInterface::class, new AuthenticationService(
+            ServiceRegistry::get(AuthenticationRepositoryInterface::class),
+            ServiceRegistry::get(AdminTokenRepositoryInterface::class),
+            $encryption
+        ));
 
-        $dashboardService = new DashboardService($dashboardRepository);
-        ServiceRegistry::set(DashboardServiceInterface::class, $dashboardService);
+        ServiceRegistry::set(DashboardServiceInterface::class, new DashboardService(
+            ServiceRegistry::get(DashboardRepositoryInterface::class)
+        ));
 
-        $categoryService = new CategoryService($categoryRepository);
-        ServiceRegistry::set(CategoryServiceInterface::class, $categoryService);
+        ServiceRegistry::set(CategoryServiceInterface::class, new CategoryService(
+            ServiceRegistry::get(CategoryRepositoryInterface::class)
+        ));
 
         // Controllers
-        ServiceRegistry::set(AuthenticationController::class, new AuthenticationController($authService));
-        ServiceRegistry::set(DashboardController::class, new DashboardController($dashboardService));
-        ServiceRegistry::set(CategoryController::class, new CategoryController($categoryService));
+        ServiceRegistry::set(AuthenticationController::class, new AuthenticationController(
+            ServiceRegistry::get(AuthenticationServiceInterface::class)
+        ));
+
+        ServiceRegistry::set(DashboardController::class, new DashboardController(
+            ServiceRegistry::get(DashboardServiceInterface::class)
+        ));
+
+        ServiceRegistry::set(CategoryController::class, new CategoryController(
+            ServiceRegistry::get(CategoryServiceInterface::class)
+        ));
+
         ServiceRegistry::set(ProductController::class, new ProductController());
 
     }

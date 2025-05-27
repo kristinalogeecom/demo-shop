@@ -52,9 +52,7 @@ function addCategoryTreeListeners() {
             const panel = document.getElementById('categoryDetails');
             panel.innerHTML = await renderCategoryDetails(categoryId, renderCategoryFormPanel, handleDeleteCategory);
 
-            document.getElementById('addSubcategory')?.addEventListener('click', () => renderCategoryFormPanel(null, categoryId));
-            document.getElementById('editCategory')?.addEventListener('click', () => renderCategoryFormPanel(categoryId));
-            document.getElementById('deleteCategory')?.addEventListener('click', () => handleDeleteCategory(categoryId));
+            bindCategoryDetailActions(categoryId);
         });
     });
 
@@ -93,6 +91,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
         enableUI();
         if (selectedCategoryId) {
             panel.innerHTML = await renderCategoryDetails(selectedCategoryId, renderCategoryFormPanel, handleDeleteCategory);
+            bindCategoryDetailActions(selectedCategoryId);
         } else {
             panel.innerHTML = renderNoSelectionMessage();
         }
@@ -165,9 +164,7 @@ async function refreshCategoriesTree(selectedCategoryId = null, expandParentId =
             selectedEl.classList.add('active');
             const panel = document.getElementById('categoryDetails');
             panel.innerHTML = await renderCategoryDetails(selectedCategoryId);
-            document.getElementById('addSubcategory')?.addEventListener('click', () => renderCategoryFormPanel(null, selectedCategoryId));
-            document.getElementById('editCategory')?.addEventListener('click', () => renderCategoryFormPanel(selectedCategoryId));
-            document.getElementById('deleteCategory')?.addEventListener('click', () => handleDeleteCategory(selectedCategoryId));
+            bindCategoryDetailActions(selectedCategoryId);
         }
     }
 }
@@ -194,3 +191,10 @@ function enableUI() {
     document.querySelector('.categories-tree')?.classList.remove('disabled-overlay');
     document.querySelector('.action-buttons')?.classList.remove('disabled-overlay');
 }
+
+function bindCategoryDetailActions(categoryId) {
+    document.getElementById('addSubcategory')?.addEventListener('click', () => renderCategoryFormPanel(null, categoryId));
+    document.getElementById('editCategory')?.addEventListener('click', () => renderCategoryFormPanel(categoryId));
+    document.getElementById('deleteCategory')?.addEventListener('click', () => handleDeleteCategory(categoryId));
+}
+

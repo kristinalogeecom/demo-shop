@@ -3,10 +3,11 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DateTime;
+use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
 use DemoShop\Application\BusinessLogic\Model\Admin;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
-use DemoShop\Application\Persistence\Repository\AuthenticationRepository;
-use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
 use DemoShop\Infrastructure\Http\Request;
 use Exception;
 
@@ -16,17 +17,23 @@ use Exception;
  */
 class AuthenticationService implements AuthenticationServiceInterface
 {
-    private AuthenticationRepository $authenticationRepository;
-    private AdminTokenRepository $adminTokenRepository;
+    private AuthenticationRepositoryInterface $authenticationRepository;
+    private AdminTokenRepositoryInterface $adminTokenRepository;
+    private EncryptionInterface $encryption;
 
     /**
-     * @param AuthenticationRepository $authenticationRepository
-     * @param AdminTokenRepository $adminTokenRepository
+     * @param AuthenticationRepositoryInterface $authenticationRepository
+     * @param AdminTokenRepositoryInterface $adminTokenRepository
+     * @param EncryptionInterface $encryption
      */
-    public function __construct(AuthenticationRepository $authenticationRepository, AdminTokenRepository $adminTokenRepository)
+    public function __construct(
+        AuthenticationRepositoryInterface $authenticationRepository,
+        AdminTokenRepositoryInterface $adminTokenRepository,
+        EncryptionInterface $encryption)
     {
         $this->authenticationRepository = $authenticationRepository;
         $this->adminTokenRepository = $adminTokenRepository;
+        $this->encryption = $encryption;
     }
 
     /**
@@ -53,7 +60,7 @@ class AuthenticationService implements AuthenticationServiceInterface
                 $this->setAuthTokenCookie($token, $expires);
                 $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
             } else {
-                $this->setShortSessionCookie();
+                $this->setShortSessionCookie($adminFromDb->id);
             }
 
             return true;
@@ -151,16 +158,25 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * Sets a short-term session cookie (30 minutes).
      *
+     * @param int $adminId
+     *
      * @return void
      */
-    private function setShortSessionCookie(): void
+    private function setShortSessionCookie(int $adminId): void
     {
-        $expires = new DateTime('+30 minutes');
+        $expiresAt = new DateTime('+30 minutes');
+        $payload = json_encode([
+            'admin_id' => $adminId,
+            'exp' => $expiresAt->getTimestamp()
+        ]);
+
+        $encrypted = $this->encryption->encrypt($payload);
+
         $host = $_SERVER['HTTP_HOST'] ?? '';
         $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
 
-        setcookie('admin_logged_in_cookie', 'true', [
-            'expires' => $expires->getTimestamp(),
+        setcookie('admin_session', $encrypted, [
+            'expires' => $expiresAt->getTimestamp(),
             'path' => '/',
             'secure' => !$isLocal,
             'httponly' => true,
@@ -178,7 +194,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         $host = $_SERVER['HTTP_HOST'] ?? '';
         $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
 
-        setcookie('admin_logged_in_cookie', '', [
+        setcookie('admin_session', '', [
             'expires' => time() - 3600,
             'path' => '/',
             'secure' => !$isLocal,

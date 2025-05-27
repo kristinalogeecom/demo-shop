@@ -3,9 +3,9 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DemoShop\Application\BusinessLogic\Model\CategoryModel;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Application\Persistence\Model\Category;
-use DemoShop\Application\Persistence\Repository\CategoryRepository;
 use Exception;
 
 
@@ -15,12 +15,13 @@ use Exception;
  */
 class CategoryService implements CategoryServiceInterface
 {
-    private CategoryRepository $categoryRepository;
+    private CategoryRepositoryInterface $categoryRepository;
+
 
     /**
-     * @param $categoryRepository
+     * @param CategoryRepositoryInterface $categoryRepository
      */
-    public function __construct($categoryRepository)
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;
     }

@@ -2,6 +2,7 @@
 
 namespace DemoShop\Infrastructure\Middleware;
 
+use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
@@ -40,9 +41,21 @@ class AdminAuthMiddleware extends Middleware
             }
         }
 
-        $shortCookie = $_COOKIE['admin_logged_in_cookie'] ?? null;
-        if($shortCookie === 'true') {
-            return;
+        $encrypted = $_COOKIE['admin_session'] ?? null;
+        if ($encrypted) {
+            try {
+                $encryption = ServiceRegistry::get(EncryptionInterface::class);
+                $data = json_decode($encryption->decrypt($encrypted), true);
+
+                if (
+                    isset($data['admin_id'], $data['exp']) &&
+                    time() < $data['exp']
+                ) {
+                    return;
+                }
+            } catch (\Throwable) {
+                // Fallthrough to unauthorized
+            }
         }
 
         throw new Exception('Unauthorized. Please log in first.');
