@@ -2,25 +2,35 @@
 
 namespace DemoShop\Application\Configuration;
 
-use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
+use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\DashboardRepositoryInterface;
+use DemoShop\Application\BusinessLogic\Service\AuthenticationService;
+use DemoShop\Application\BusinessLogic\Service\CategoryService;
 use DemoShop\Application\BusinessLogic\Service\DashboardService;
-use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
+use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
+use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
+use DemoShop\Application\BusinessLogic\ServiceInterface\DashboardServiceInterface;
 use DemoShop\Application\Configuration\Routes\WebRouteRegistrar;
-use DemoShop\Application\Persistence\Repository\AdminRepository;
+use DemoShop\Application\Persistence\Encryption\Encrypter;
+use DemoShop\Application\Persistence\Repository\AuthenticationRepository;
 use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
+use DemoShop\Application\Persistence\Repository\CategoryRepository;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
-use DemoShop\Application\Presentation\Controller\AdminController;
+use DemoShop\Application\Presentation\Controller\AuthenticationController;
+use DemoShop\Application\Presentation\Controller\CategoryController;
+use DemoShop\Application\Presentation\Controller\DashboardController;
+use DemoShop\Application\Presentation\Controller\ProductController;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
 use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use DemoShop\Infrastructure\Router\Router;
-use DemoShop\Infrastructure\Http\Request;
-use DemoShop\Infrastructure\Container\ServiceRegistry;
-use DemoShop\Application\BusinessLogic\Service\AdminService;
-use DemoShop\Application\Persistence\Encryption\Encrypter;
-use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
 use Dotenv\Dotenv;
 use Exception;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * The main entry point of the application.
@@ -112,27 +122,35 @@ class App
         $encryption = new Encrypter($rawKey);
         ServiceRegistry::set(EncryptionInterface::class, $encryption);
 
-        $adminRepository = new AdminRepository(
-            ServiceRegistry::get(EncryptionInterface::class)
-        );
-        ServiceRegistry::set(AdminRepository::class, $adminRepository);
-
-        $dashboardRepository = new DashboardRepository();
-        ServiceRegistry::set(DashboardRepository::class, $dashboardRepository);
+        // Repositories
+        $authRepository = new AuthenticationRepository($encryption);
+        ServiceRegistry::set(AuthenticationRepositoryInterface::class, $authRepository);
 
         $adminTokenRepository = new AdminTokenRepository();
-        ServiceRegistry::set(AdminTokenRepository::class, $adminTokenRepository);
+        ServiceRegistry::set(AdminTokenRepositoryInterface::class, $adminTokenRepository);
 
-        $adminService = new AdminService($adminRepository, $adminTokenRepository);
-        ServiceRegistry::set(AdminServiceInterface::class, $adminService);
+        $dashboardRepository = new DashboardRepository();
+        ServiceRegistry::set(DashboardRepositoryInterface::class, $dashboardRepository);
+
+        $categoryRepository = new CategoryRepository();
+        ServiceRegistry::set(CategoryRepositoryInterface::class, $categoryRepository);
+
+        // Services
+        $authService = new AuthenticationService($authRepository, $adminTokenRepository);
+        ServiceRegistry::set(AuthenticationServiceInterface::class, $authService);
 
         $dashboardService = new DashboardService($dashboardRepository);
         ServiceRegistry::set(DashboardServiceInterface::class, $dashboardService);
 
-        ServiceRegistry::set(AdminController::class, new AdminController(
-            ServiceRegistry::get(AdminServiceInterface::class),
-            ServiceRegistry::get(DashboardServiceInterface::class)
-        ));
+        $categoryService = new CategoryService($categoryRepository);
+        ServiceRegistry::set(CategoryServiceInterface::class, $categoryService);
+
+        // Controllers
+        ServiceRegistry::set(AuthenticationController::class, new AuthenticationController($authService));
+        ServiceRegistry::set(DashboardController::class, new DashboardController($dashboardService));
+        ServiceRegistry::set(CategoryController::class, new CategoryController($categoryService));
+        ServiceRegistry::set(ProductController::class, new ProductController());
+
     }
 
     /**

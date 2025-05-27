@@ -2,6 +2,9 @@
 
 namespace DemoShop\Application\BusinessLogic\Model;
 
+/**
+ * Represents a category in the system.
+ */
 class CategoryModel
 {
     private ?int $id;
@@ -10,6 +13,13 @@ class CategoryModel
     private ?string $code;
     private ?string $description;
 
+    /**
+     * @param int|null $id
+     * @param int|null $parentId
+     * @param string $name
+     * @param string|null $code
+     * @param string|null $description
+     */
     public function __construct(
         ?int $id,
         ?int $parentId,

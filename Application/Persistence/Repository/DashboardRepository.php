@@ -2,147 +2,61 @@
 
 namespace DemoShop\Application\Persistence\Repository;
 
-use DemoShop\Application\BusinessLogic\Model\CategoryModel;
-use DemoShop\Application\Persistence\Model\Category;
-use Exception;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\DashboardRepositoryInterface;
 
-class DashboardRepository
+/**
+ * Repository implementation for retrieving admin dashboard statistics.
+ */
+class DashboardRepository implements DashboardRepositoryInterface
 {
+    /**
+     * Gets the total number of products.
+     *
+     * @return int The number of products.
+     */
     public function getProductsCount():int
     {
         return 10;
     }
 
+    /**
+     * Gets the total number of categories.
+     *
+     * @return int The number of categories.
+     */
     public function getCategoriesCount():int
     {
         return 2;
     }
 
+    /**
+     * Gets the number of times the home page has been viewed.
+     *
+     * @return int The number of home page views.
+     */
     public function getHomePageViews(): int
     {
         return 7;
     }
 
+    /**
+     * Gets the name of the most viewed product.
+     *
+     * @return string The product name.
+     */
     public function getMostViewedProduct(): string
     {
         return "prod1";
     }
 
+    /**
+     * Gets the view count for the most viewed product.
+     *
+     * @return int The number of views.
+     */
     public function getMostViewedProductViews(): int
     {
         return 3;
     }
-
-    public function getCategories(): array
-    {
-        $categories = Category::withCount('children')
-            ->get()
-            ->toArray();
-
-        return $this->buildTree($categories);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getCategoryById($id): array
-    {
-        $category = Category::with('parent')->find($id);
-
-        if (!$category) {
-            throw new Exception('Category not found');
-        }
-
-        return $category->toArray();
-    }
-
-    public function getFlatCategories()
-    {
-        return Category::select('id', 'name')
-            ->orderBy('name')
-            ->get()
-            ->toArray();
-    }
-
-
-    /**
-     * @param CategoryModel $categoryModel
-     * @return CategoryModel
-     * @throws Exception
-     */
-    public function saveCategory(CategoryModel $categoryModel): CategoryModel
-    {
-        $category = $categoryModel->getId()
-            ? Category::find($categoryModel->getId())
-            : new Category();
-
-        if (!$category) {
-            throw new Exception('Category not found');
-        }
-
-        $category->fill([
-            'parent_id' => $categoryModel->getParentId() !== '' ? $categoryModel->getParentId() : null,
-            'name' => $categoryModel->getName(),
-            'code' => $categoryModel->getCode(),
-            'description' => $categoryModel->getDescription(),
-        ])->save();
-
-        $category = $category->fresh();
-
-        return new CategoryModel(
-            $category->id,
-            $category->parent_id,
-            $category->name,
-            $category->code,
-            $category->description
-        );
-    }
-
-
-    /**
-     * @param int $id
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteCategory(int $id): bool
-    {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return false;
-        }
-
-        $this->deleteSubcategories($category);
-
-        return $category->delete();
-    }
-
-
-    private function buildTree(array $categories, $parentId = null): array
-    {
-        $branch = [];
-
-        foreach ($categories as $category) {
-            if ($category['parent_id'] == $parentId) {
-                $children = $this->buildTree($categories, $category['id']);
-                if ($children) {
-                    $category['children'] = $children;
-                }
-                $branch[] = $category;
-            }
-        }
-
-        return $branch;
-    }
-
-
-    private function deleteSubcategories($category): void
-    {
-        foreach ($category->children()->get() as $child) {
-            $this->deleteSubcategories($child);
-            $child->delete();
-        }
-    }
-
 
 }

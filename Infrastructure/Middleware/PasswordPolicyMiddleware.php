@@ -2,7 +2,7 @@
 
 namespace DemoShop\Infrastructure\Middleware;
 
-use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
+use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use Exception;
@@ -31,7 +31,7 @@ class PasswordPolicyMiddleware extends Middleware
      */
     public function handle(Request $request): void
     {
-        $adminService = ServiceRegistry::get(AdminServiceInterface::class);
+        $adminService = ServiceRegistry::get(AuthenticationServiceInterface::class);
 
         $error = $adminService->validatePassword($request->input('password'));
 
