@@ -5,231 +5,125 @@ namespace DemoShop\Application\Configuration\Routes;
 use DemoShop\Application\BusinessLogic\Service\AdminServiceInterface;
 use DemoShop\Application\BusinessLogic\Service\DashboardServiceInterface;
 use DemoShop\Application\Presentation\Controller\AdminController;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
 use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
 use DemoShop\Infrastructure\Response\HtmlResponse;
-use DemoShop\Infrastructure\Container\ServiceRegistry;
-use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
 use DemoShop\Infrastructure\Router\Router;
-use DemoShop\Infrastructure\Session\SessionManager;
 use Exception;
-
-/**
- * Defines and registers all web-facing routes for the application.
- *
- * Responsible for wiring routes to controller actions or inline closures,
- * and attaching appropriate middleware for route protection and validation.
- */
 
 class WebRouteRegistrar
 {
-    /**
-     *  Registers all application routes into the provided router instance.
-     *
-     * @param Router $router The application's router instance
-     *
-     * @return void
-     */
     public static function register(Router $router): void
     {
         try {
-            $controller = new AdminController(ServiceRegistry::get(AdminServiceInterface::class),
-            ServiceRegistry::get(DashboardServiceInterface::class));
+            $controller = new AdminController(
+                ServiceRegistry::get(AdminServiceInterface::class),
+                ServiceRegistry::get(DashboardServiceInterface::class)
+            );
 
-            /**
-             * Public visitor homepage
-             */
-            $router->addRoute('GET', '/', function () {
-                (new HtmlResponse('Visitor'))->send();
-            });
-
-            /**
-             * Admin login form
-             * Redirects to dashboard if admin is already logged in.
-             */
-            $router->addRoute('GET', '/admin/login', function () {
-                $session = SessionManager::getInstance();
-
-                if ($session->get('admin_logged_in')) {
-                    (new RedirectResponse('/admin/dashboard'))->send();
-
-                    return;
-                }
-
-                (new HtmlResponse('Login', ['errors' => [], 'username' => '']))->send();
-            });
-
-            /**
-             * Admin login form submission
-             * Runs password policy and authentication middleware before executing login.
-             */
-            $router->addRoute('POST', '/admin/login', function () use ($controller) {
-                $request = ServiceRegistry::get(Request::class);
-
-                try {
-                    $middlewareChain = new PasswordPolicyMiddleware();
-                    $middlewareChain->linkWith(new AdminAuthMiddleware());
-                    $middlewareChain->check($request);
-
-                    $response = $controller->login($request);
-                    $response->send();
-                } catch (Exception $e) {
-                    (new HtmlResponse('Login', [
-                        'errors' => explode("\n", $e->getMessage()),
-                        'username' => $request->input('username'),
-                    ]))->send();
-                }
-            });
-
-            /**
-             * Admin Logout
-             */
-
-            $router->addRoute('POST', '/admin/logout', function () use ($controller) {
-                $request = ServiceRegistry::get(Request::class);
-                $response = $controller->logout($request);
-                $response->send();
-            });
-
-
-            /**
-             * Error pages
-             */
-            $router->addRoute('GET', '/404', function () {
-                (new HtmlResponse('Error404'))->send();
-            });
-
-            $router->addRoute('GET', '/505', function () {
-                (new HtmlResponse('Error505'))->send();
-            });
-
-            /**
-             * Admin dashboard
-             * Protected by authentication middleware.
-             */
-            $router->addRoute('GET', '/admin/dashboard', function () use ($controller) {
-                $request = ServiceRegistry::get(Request::class);
-
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check($request);
-
-                    (new HtmlResponse('AdminDashboard'))->send();
-                } catch (Exception $e) {
-                    (new HtmlResponse('Login', ['errors' => ['Unauthorized. Please login first'], 'username' => '']))->send();
-                }
-            });
-
-            $router->addRoute('GET', '/admin/dashboard/data', function () use ($controller) {
-                $request = ServiceRegistry::get(Request::class);
-
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check($request);
-
-                    $response = $controller->getDashboardStats();
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
-            /**
-             * Product Management Routes
-             */
-
-            $router->addRoute('GET', '/admin/products', function() use ($controller) {
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check(ServiceRegistry::get(Request::class));
-
-                    $response = $controller->getProducts();
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
-            /**
-             * Category Management Routes
-             */
-
-            // Get all categories (hierarchical)
-            $router->addRoute('GET', '/admin/categories', function() use ($controller) {
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check(ServiceRegistry::get(Request::class));
-
-                    $response = $controller->getCategories();
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
-            $router->addRoute('GET', '/admin/categories-flat', function () use ($controller) {
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check(ServiceRegistry::get(Request::class));
-
-                    $response = $controller->getFlatCategories();
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 400))->send();
-                }
-            });
-
-
-            // Get single category details
-            $router->addRoute('GET', '/admin/categories/{id}', function() use ($controller) {
-                try {
-                    $request = ServiceRegistry::get(Request::class);
-
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check($request);
-
-                    $id = $request->param('id');
-
-                    $response = $controller->getCategory($id);
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
-            // Save category (create/update)
-            $router->addRoute('POST', '/admin/categories/save', function() use ($controller) {
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check(ServiceRegistry::get(Request::class));
-                    $request = ServiceRegistry::get(Request::class);
-
-                    $response = $controller->saveCategory($request);
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
-            // Delete category
-            $router->addRoute('POST', '/admin/categories/delete', function() use ($controller) {
-                try {
-                    $middlewareChain = new AdminAuthMiddleware();
-                    $middlewareChain->check(ServiceRegistry::get(Request::class));
-
-                    $request = ServiceRegistry::get(Request::class);
-                    $response = $controller->deleteCategory($request);
-                    $response->send();
-                } catch (Exception $e) {
-                    (new JsonResponse(['error' => $e->getMessage()], 401))->send();
-                }
-            });
-
+            self::registerPublicRoutes($router);
+            self::registerAuthRoutes($router, $controller);
+            self::registerAdminRoutes($router, $controller);
 
         } catch (Exception $e) {
             error_log('Route registration error: ' . $e->getMessage());
+        }
+    }
+
+    private static function registerPublicRoutes(Router $router): void
+    {
+        $router->addRoute('GET', '/', fn() => (new HtmlResponse('Visitor'))->send());
+
+        $router->addRoute('GET', '/admin/login', function () {
+            $request = ServiceRegistry::get(Request::class);
+            try {
+                (new AdminAuthMiddleware())->check($request);
+                (new RedirectResponse('/admin/dashboard'))->send();
+            } catch (Exception $e) {
+                (new HtmlResponse('Login', ['errors' => [], 'username' => '']))->send();
+            }
+        });
+
+        $router->addRoute('POST', '/admin/login', function () {
+            $request = ServiceRegistry::get(Request::class);
+            try {
+                (new PasswordPolicyMiddleware())->check($request);
+                ServiceRegistry::get(AdminController::class)->login($request)->send();
+            } catch (Exception $e) {
+                (new HtmlResponse('Login', [
+                    'errors' => explode("\n", $e->getMessage()),
+                    'username' => $request->input('username')
+                ]))->send();
+            }
+        });
+
+        $router->addRoute('POST', '/admin/logout', function () {
+            $request = ServiceRegistry::get(Request::class);
+            ServiceRegistry::get(AdminController::class)->logout($request)->send();
+        });
+
+        $router->addRoute('GET', '/404', fn() => (new HtmlResponse('Error404'))->send());
+        $router->addRoute('GET', '/505', fn() => (new HtmlResponse('Error505'))->send());
+    }
+
+    private static function registerAuthRoutes(Router $router, AdminController $controller): void
+    {
+        $router->addRoute('GET', '/admin/dashboard', function () use ($controller) {
+            self::secure(fn() => (new HtmlResponse('AdminDashboard'))->send());
+        });
+
+        $router->addRoute('GET', '/admin/dashboard/data', function () use ($controller) {
+            self::secure(fn() => $controller->getDashboardStats()->send());
+        });
+    }
+
+    private static function registerAdminRoutes(Router $router, AdminController $controller): void
+    {
+        $router->addRoute('GET', '/admin/products', function () use ($controller) {
+            self::secure(fn() => $controller->getProducts()->send());
+        });
+
+        $router->addRoute('GET', '/admin/categories', function () use ($controller) {
+            self::secure(fn() => $controller->getCategories()->send());
+        });
+
+        $router->addRoute('GET', '/admin/categories-flat', function () use ($controller) {
+            self::secure(fn() => $controller->getFlatCategories()->send());
+        });
+
+        $router->addRoute('GET', '/admin/categories/{id}', function () use ($controller) {
+            self::secure(function () use ($controller) {
+                $id = ServiceRegistry::get(Request::class)->param('id');
+                $controller->getCategory($id)->send();
+            });
+        });
+
+        $router->addRoute('POST', '/admin/categories/save', function () use ($controller) {
+            self::secure(function () use ($controller) {
+                $request = ServiceRegistry::get(Request::class);
+                $controller->saveCategory($request)->send();
+            });
+        });
+
+        $router->addRoute('POST', '/admin/categories/delete', function () use ($controller) {
+            self::secure(function () use ($controller) {
+                $request = ServiceRegistry::get(Request::class);
+                $controller->deleteCategory($request)->send();
+            });
+        });
+    }
+
+    private static function secure(callable $callback): void
+    {
+        try {
+            $middleware = new AdminAuthMiddleware();
+            $middleware->check(ServiceRegistry::get(Request::class));
+            $callback();
+        } catch (Exception $e) {
+            (new HtmlResponse('Login', ['errors' => ['Unauthorized. Please login first'], 'username' => '']))->send();
         }
     }
 }

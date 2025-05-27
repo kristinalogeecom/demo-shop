@@ -7,7 +7,6 @@ use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\Persistence\Repository\AdminRepository;
 use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
 use DemoShop\Infrastructure\Http\Request;
-use DemoShop\Infrastructure\Session\SessionManager;
 
 /**
  * Handles business logic related to admin authentication,
@@ -28,9 +27,8 @@ class AdminService implements AdminServiceInterface
         $this->adminTokenRepository = $adminTokenRepository;
     }
 
-
     /**
-     * Authenticates the admin and sets session and cookie if successful.
+     * Authenticates the admin and sets cookie if successful.
      */
     public function attemptLogin(Admin $admin, Request $request): bool
     {
@@ -39,14 +37,15 @@ class AdminService implements AdminServiceInterface
         if ($adminFromDb !== null &&
             $this->adminRepository->verifyPassword($adminFromDb, $admin->getPassword())) {
 
-            $session = SessionManager::getInstance();
-            $session->set('admin_logged_in', true);
-
             if ($admin->isRememberMe()) {
+                // Long-term token in database and cookie (30 days)
                 $token = bin2hex(random_bytes(32));
                 $expires = new DateTime('+30 days');
                 $this->setAuthTokenCookie($token, $expires);
                 $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
+            } else {
+                // Short-term cookie (30 min), without base
+                $this->setShortSessionCookie();
             }
 
             return true;
@@ -88,18 +87,14 @@ class AdminService implements AdminServiceInterface
 
     public function logout(Request $request): void
     {
-        $session = SessionManager::getInstance();
-        $session->unset('admin_logged_in');
-
         $token = $_COOKIE['admin_token'] ?? null;
 
         if($token) {
-            error_log("[Logout] Token received: $token");
             $this->adminTokenRepository->deleteToken($token);
             $this->clearAuthTokenCookie();
-        } else {
-            error_log("[Logout] No token received.");
         }
+
+        $this->clearShortSessionCookie();
     }
 
     private function setAuthTokenCookie(string $token, DateTime $expires): void
@@ -114,8 +109,6 @@ class AdminService implements AdminServiceInterface
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
-
-        error_log("[Login] Token set in cookie: $token");
     }
 
     private function clearAuthTokenCookie(): void
@@ -130,7 +123,34 @@ class AdminService implements AdminServiceInterface
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+    }
 
-        error_log("[Logout] Token cookie cleared");
+    private function setShortSessionCookie(): void
+    {
+        $expires = new \DateTime('+30 minutes');
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
+
+        setcookie('admin_logged_in_cookie', 'true', [
+            'expires' => $expires->getTimestamp(),
+            'path' => '/',
+            'secure' => !$isLocal,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    private function clearShortSessionCookie(): void
+    {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
+
+        setcookie('admin_logged_in_cookie', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'secure' => !$isLocal,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
     }
 }
