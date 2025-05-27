@@ -5,6 +5,7 @@ namespace DemoShop\Application\Persistence\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *  Represents a product category stored in the 'categories' table.
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $code Optional code for the category.
  * @property string|null $description Optional description of the category.
  *
+ * @property Category|null $parent The parent category instance.
  * @property Collection|Category[] $children List of child categories.
  * @property Collection|Product[] $products List of products in this category.
  *
@@ -34,6 +36,14 @@ class Category extends Model
     ];
 
     public $timestamps = false;
+
+    /**
+     * Get the parent category
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
 
     /**
      * Get the child categories
@@ -57,6 +67,14 @@ class Category extends Model
     public function hasProducts(): bool
     {
         return $this->products()->exists();
+    }
+
+    /**
+     * Check if category has subcategories
+     */
+    public function hasChildren(): bool
+    {
+        return $this->children()->exists();
     }
 
 }
