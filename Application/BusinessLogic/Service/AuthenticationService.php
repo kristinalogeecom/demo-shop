@@ -3,12 +3,13 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DateTime;
-use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
+use DemoShop\Infrastructure\Security\CookieManager;
 use Exception;
 
 /**
@@ -19,21 +20,16 @@ class AuthenticationService implements AuthenticationServiceInterface
 {
     private AuthenticationRepositoryInterface $authenticationRepository;
     private AdminTokenRepositoryInterface $adminTokenRepository;
-    private EncryptionInterface $encryption;
+    private CookieManager $cookieManager;
 
     /**
-     * @param AuthenticationRepositoryInterface $authenticationRepository
-     * @param AdminTokenRepositoryInterface $adminTokenRepository
-     * @param EncryptionInterface $encryption
+     * @throws Exception
      */
-    public function __construct(
-        AuthenticationRepositoryInterface $authenticationRepository,
-        AdminTokenRepositoryInterface $adminTokenRepository,
-        EncryptionInterface $encryption)
+    public function __construct()
     {
-        $this->authenticationRepository = $authenticationRepository;
-        $this->adminTokenRepository = $adminTokenRepository;
-        $this->encryption = $encryption;
+        $this->authenticationRepository = ServiceRegistry::get(AuthenticationRepositoryInterface::class);
+        $this->adminTokenRepository = ServiceRegistry::get(AdminTokenRepositoryInterface::class);
+        $this->cookieManager = ServiceRegistry::get(CookieManager::class);
     }
 
     /**
@@ -57,10 +53,14 @@ class AuthenticationService implements AuthenticationServiceInterface
             if ($admin->isRememberMe()) {
                 $token = bin2hex(random_bytes(32));
                 $expires = new DateTime('+30 days');
-                $this->setAuthTokenCookie($token, $expires);
+                $this->cookieManager->setPersistentToken('admin_token', $token, $expires);
                 $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
             } else {
-                $this->setShortSessionCookie($adminFromDb->id);
+                $expires = new DateTime('+30 minutes');
+                $this->cookieManager->setEncryptedSession('admin_session', [
+                    'admin_id' => $adminFromDb->id,
+                    'exp' => $expires->getTimestamp(),
+                ], $expires);
             }
 
             return true;
@@ -93,7 +93,6 @@ class AuthenticationService implements AuthenticationServiceInterface
         return null;
     }
 
-
     /**
      * Logs out the admin by clearing stored tokens and cookies.
      *
@@ -103,103 +102,14 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function logout(Request $request): void
     {
-        $token = $_COOKIE['admin_token'] ?? null;
+        $token = $this->cookieManager->getCookie('admin_token');
 
         if($token) {
             $this->adminTokenRepository->deleteToken($token);
-            $this->clearAuthTokenCookie();
+            $this->cookieManager->clearCookie('admin_token');
         }
 
-        $this->clearShortSessionCookie();
+        $this->cookieManager->clearCookie('admin_session');
     }
 
-
-    /**
-     * Sets a persistent authentication token cookie (30 days).
-     *
-     * @param string $token The authentication token.
-     * @param DateTime $expires The expiration time for the cookie.
-     *
-     * @return void
-     */
-    private function setAuthTokenCookie(string $token, DateTime $expires): void
-    {
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
-
-        setcookie('admin_token', $token, [
-            'expires' => $expires->getTimestamp(),
-            'path' => '/',
-            'secure' => !$isLocal,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-    }
-
-    /**
-     * Clears the persistent authentication token cookie.
-     *
-     * @return void
-     */
-    private function clearAuthTokenCookie(): void
-    {
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
-
-        setcookie('admin_token', '', [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'secure' => !$isLocal,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-    }
-
-    /**
-     * Sets a short-term session cookie (30 minutes).
-     *
-     * @param int $adminId
-     *
-     * @return void
-     */
-    private function setShortSessionCookie(int $adminId): void
-    {
-        $expiresAt = new DateTime('+30 minutes');
-        $payload = json_encode([
-            'admin_id' => $adminId,
-            'exp' => $expiresAt->getTimestamp()
-        ]);
-
-        $encrypted = $this->encryption->encrypt($payload);
-
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
-
-        setcookie('admin_session', $encrypted, [
-            'expires' => $expiresAt->getTimestamp(),
-            'path' => '/',
-            'secure' => !$isLocal,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-    }
-
-    /**
-     * Clears the short-term session cookie.
-     *
-     * @return void
-     */
-    private function clearShortSessionCookie(): void
-    {
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $isLocal = str_contains($host, 'localhost') || str_contains($host, '127.0.0.1');
-
-        setcookie('admin_session', '', [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'secure' => !$isLocal,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-    }
 }

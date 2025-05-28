@@ -19,15 +19,12 @@ use DemoShop\Application\Persistence\Repository\AuthenticationRepository;
 use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
 use DemoShop\Application\Persistence\Repository\CategoryRepository;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
-use DemoShop\Application\Presentation\Controller\AuthenticationController;
-use DemoShop\Application\Presentation\Controller\CategoryController;
-use DemoShop\Application\Presentation\Controller\DashboardController;
-use DemoShop\Application\Presentation\Controller\ProductController;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
 use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
 use DemoShop\Infrastructure\Router\RouteDispatcher;
+use DemoShop\Infrastructure\Security\CookieManager;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -92,6 +89,8 @@ class App
         $encryption = new Encrypter($rawKey);
         ServiceRegistry::set(EncryptionInterface::class, $encryption);
 
+        ServiceRegistry::set(CookieManager::class, new CookieManager($encryption));
+
         // Repositories
         ServiceRegistry::set(AuthenticationRepositoryInterface::class, new AuthenticationRepository($encryption));
         ServiceRegistry::set(AdminTokenRepositoryInterface::class, new AdminTokenRepository());
@@ -99,19 +98,9 @@ class App
         ServiceRegistry::set(CategoryRepositoryInterface::class, new CategoryRepository());
 
         // Services
-        ServiceRegistry::set(AuthenticationServiceInterface::class, new AuthenticationService(
-            ServiceRegistry::get(AuthenticationRepositoryInterface::class),
-            ServiceRegistry::get(AdminTokenRepositoryInterface::class),
-            $encryption
-        ));
-
-        ServiceRegistry::set(DashboardServiceInterface::class, new DashboardService(
-            ServiceRegistry::get(DashboardRepositoryInterface::class)
-        ));
-
-        ServiceRegistry::set(CategoryServiceInterface::class, new CategoryService(
-            ServiceRegistry::get(CategoryRepositoryInterface::class)
-        ));
+        ServiceRegistry::set(AuthenticationServiceInterface::class, new AuthenticationService());
+        ServiceRegistry::set(DashboardServiceInterface::class, new DashboardService());
+        ServiceRegistry::set(CategoryServiceInterface::class, new CategoryService());
     }
 
     /**

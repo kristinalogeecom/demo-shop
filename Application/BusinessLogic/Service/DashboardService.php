@@ -4,6 +4,7 @@ namespace DemoShop\Application\BusinessLogic\Service;
 
 use DemoShop\Application\BusinessLogic\RepositoryInterface\DashboardRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\DashboardServiceInterface;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 
 /**
  * Handles business logic for retrieving dashboard-related statistics.
@@ -13,11 +14,11 @@ class DashboardService implements DashboardServiceInterface
     private DashboardRepositoryInterface $dashboardRepository;
 
     /**
-     * @param DashboardRepositoryInterface $dashboardRepository
+     * @throws \Exception
      */
-    public function __construct(DashboardRepositoryInterface $dashboardRepository)
+    public function __construct()
     {
-        $this->dashboardRepository = $dashboardRepository;
+        $this->dashboardRepository = ServiceRegistry::get(DashboardRepositoryInterface::class);
     }
 
     /**

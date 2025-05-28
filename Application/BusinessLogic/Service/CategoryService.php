@@ -6,6 +6,7 @@ use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Application\Persistence\Model\Category;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 use Exception;
 
 
@@ -17,13 +18,12 @@ class CategoryService implements CategoryServiceInterface
 {
     private CategoryRepositoryInterface $categoryRepository;
 
-
     /**
-     * @param CategoryRepositoryInterface $categoryRepository
+     * @throws Exception
      */
-    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    public function __construct()
     {
-        $this->categoryRepository = $categoryRepository;
+        $this->categoryRepository = ServiceRegistry::get(CategoryRepositoryInterface::class);
     }
 
     /**
