@@ -5,6 +5,7 @@ namespace DemoShop\Application\Persistence\Repository;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
 use DemoShop\Application\Persistence\Model\AdminToken;
 use Illuminate\Support\Carbon;
+use DateTime;
 
 /**
  * Repository implementation for managing admin authentication tokens.
@@ -16,11 +17,11 @@ class AdminTokenRepository implements AdminTokenRepositoryInterface
      *
      * @param int $adminId The ID of the admin.
      * @param string $token The token string.
-     * @param \DateTime $expiresAt The expiration datetime of the token.
+     * @param DateTime $expiresAt The expiration datetime of the token.
      *
      * @return void
      */
-    public function storeToken(int $adminId, string $token, \Datetime $expiresAt): void
+    public function storeToken(int $adminId, string $token, Datetime $expiresAt): void
     {
         AdminToken::create([
             'admin_id' => $adminId,

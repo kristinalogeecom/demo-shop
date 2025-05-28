@@ -151,5 +151,15 @@ class Request
         return isset($this->body[$key]) && trim($this->body[$key]) !== '';
     }
 
+    /**
+     * Returns all route parameters as array.
+     *
+     * @return array
+     */
+    public function routeParams(): array
+    {
+        return $this->routeParams;
+    }
+
 
 }

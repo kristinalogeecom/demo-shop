@@ -5,6 +5,7 @@ namespace DemoShop\Application\Persistence\Repository;
 use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\Persistence\Model\Admin;
+use Exception;
 
 /**
  * Repository for handling admin authentication logic,
@@ -54,7 +55,7 @@ class AuthenticationRepository implements AuthenticationRepositoryInterface
         try {
             $decryptedPassword = $this->encryption->decrypt($admin->password);
             return $decryptedPassword === $password;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

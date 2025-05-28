@@ -3,7 +3,6 @@
 namespace DemoShop\Application\BusinessLogic\RepositoryInterface;
 
 use DemoShop\Application\BusinessLogic\Model\CategoryModel;
-use Exception;
 
 /**
  * Interface for managing product categories.

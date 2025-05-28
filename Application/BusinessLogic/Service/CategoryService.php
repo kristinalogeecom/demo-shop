@@ -80,12 +80,12 @@ class CategoryService implements CategoryServiceInterface
     {
         $category = Category::with('products', 'children')->find($id);
 
-        if (!$category || !$category instanceof Category) {
+        if (!$category instanceof Category) {
             throw new Exception('Category not found');
         }
 
         if ($category->hasProducts()) {
-            throw new Exception("Cannot delete category '{$category->name}' because it has products.");
+            throw new Exception("Cannot delete category ' $category->name ' because it has products.");
         }
 
         $this->checkChildrenForProducts($category);
@@ -194,7 +194,7 @@ class CategoryService implements CategoryServiceInterface
     {
         foreach ($category->children()->with('products', 'children')->get() as $child) {
             if ($child->hasProducts()) {
-                throw new Exception("Cannot delete subcategory '{$child->name}' because it has products.");
+                throw new Exception("Cannot delete subcategory ' $child->name ' because it has products.");
             }
 
             $this->checkChildrenForProducts($child);

@@ -7,6 +7,7 @@ use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryI
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use Exception;
+use Throwable;
 
 /**
  * Middleware that restricts access to admin-only routes.
@@ -53,7 +54,7 @@ class AdminAuthMiddleware extends Middleware
                 ) {
                     return;
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Fallthrough to unauthorized
             }
         }

@@ -2,6 +2,8 @@
 
 namespace DemoShop\Infrastructure\Container;
 
+use Exception;
+
 class ServiceRegistry
 {
     private static array $services = [];
@@ -26,12 +28,12 @@ class ServiceRegistry
      * @param string $key
      *
      * @return object
-     * @throws \Exception
+     * @throws Exception
      */
     public static function get(string $key): object
     {
         if (!isset(self::$services[$key])) {
-            throw new \Exception("Service '{$key}' not found");
+            throw new Exception("Service ' $key ' not found");
         }
 
         return self::$services[$key];

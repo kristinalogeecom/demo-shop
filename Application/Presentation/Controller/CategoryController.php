@@ -4,10 +4,12 @@ namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
 use Exception;
+use Throwable;
 
 
 /**
@@ -15,22 +17,18 @@ use Exception;
  */
 class CategoryController
 {
-    private CategoryServiceInterface $categoryService;
-
-    public function __construct(CategoryServiceInterface $categoryService)
-    {
-        $this->categoryService = $categoryService;
-    }
 
     /**
      * Retrieves all categories in a tree structure.
      *
+     * @param Request $request
+     *
      * @return Response JSON response with the category tree or an error.
      */
-    public function getCategories(): Response
+    public function getCategories(Request $request): Response
     {
         try {
-            return new JsonResponse($this->categoryService->getAllCategories());
+            return new JsonResponse($this->categoryService()->getAllCategories());
         } catch (Exception $e) {
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
@@ -39,12 +37,14 @@ class CategoryController
     /**
      * Retrieves all categories in a flat list.
      *
+     * @param Request $request
+     *
      * @return Response JSON response with a flat list of categories or an error.
      */
-    public function getFlatCategories(): Response
+    public function getFlatCategories(Request $request): Response
     {
         try {
-            return new JsonResponse($this->categoryService->getFlatCategories());
+            return new JsonResponse($this->categoryService()->getFlatCategories());
         } catch (Exception $e) {
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
@@ -53,14 +53,20 @@ class CategoryController
     /**
      * Retrieves a single category by ID.
      *
-     * @param int $id The ID of the category to retrieve.
+     * @param Request $request
      *
      * @return Response JSON response with the category or an error.
      */
-    public function getCategory(int $id): Response
+    public function getCategory(Request $request): Response
     {
+        $id = (int) $request->param('id');
+
+        if (!$id) {
+            return new JsonResponse(['error' => 'Category ID is missing.'], 400);
+        }
+
         try {
-            return new JsonResponse($this->categoryService->getCategoryById($id));
+            return new JsonResponse($this->categoryService()->getCategoryById($id));
         } catch (Exception $e) {
             return new JsonResponse(['errors' => $e->getMessage()], 500);
         }
@@ -80,13 +86,13 @@ class CategoryController
                 $request->only(['id', 'parent_id', 'name', 'code', 'description'])
             );
 
-            $saved = $this->categoryService->saveCategory($category);
+            $saved = $this->categoryService()->saveCategory($category);
 
             return new JsonResponse([
                 'success' => true,
                 'category' => $saved->toArray()
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse([
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -110,9 +116,9 @@ class CategoryController
         }
 
         try {
-            $this->categoryService->deleteCategory($id);
+            $this->categoryService()->deleteCategory($id);
             return new JsonResponse(['success' => true]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
@@ -121,13 +127,28 @@ class CategoryController
     /**
      * Retrieves descendant categories IDs in a list.
      *
-     * @param $id
+     * @param Request $request
      *
      * @return Response JSON response with a list of descendant IDs
+     * @throws Exception
      */
-    public function getDescendantIds($id): Response
+    public function getDescendantIds(Request $request): Response
     {
-        return new JsonResponse($this->categoryService->getDescendantIds((int) $id));
+        $id = (int) $request->param('id');
+
+        if (!$id) {
+            return new JsonResponse(['error' => 'Category ID is missing.'], 400);
+        }
+
+        return new JsonResponse($this->categoryService()->getDescendantIds((int) $id));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function categoryService(): CategoryServiceInterface
+    {
+        return ServiceRegistry::get(CategoryServiceInterface::class);
     }
 
 }
