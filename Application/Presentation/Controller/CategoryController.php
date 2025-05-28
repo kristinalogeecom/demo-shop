@@ -116,4 +116,10 @@ class CategoryController
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function getDescendantIds($id): Response
+    {
+        return new JsonResponse($this->categoryService->getDescendantIds((int) $id));
+    }
+
 }

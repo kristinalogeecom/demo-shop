@@ -51,4 +51,6 @@ interface CategoryServiceInterface
      */
     public function getFlatCategories(): array;
 
+    public function getDescendantIds(int $categoryId): array;
+
 }

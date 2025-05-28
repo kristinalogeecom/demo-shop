@@ -12,7 +12,7 @@ use Exception;
  * Middleware that restricts access to admin-only routes.
  *
  * Checks for a valid long-term or short-term authentication cookie.
- * If neither is found or valid, throws an authorization exception.
+ * If neither is found nor valid, throws an authorization exception.
  */
 class AdminAuthMiddleware extends Middleware
 {

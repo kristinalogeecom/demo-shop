@@ -12,6 +12,10 @@ export async function fetchFlatCategories() {
     return await get('/admin/categories-flat');
 }
 
+export async function fetchDescendantCategoryIds(categoryId) {
+    return await get(`/admin/categories/${categoryId}/descendants`);
+}
+
 export async function saveCategory(data) {
     try {
         const response = await post('/admin/categories/save', data);
@@ -38,3 +42,9 @@ export async function deleteCategoryById(categoryId) {
         throw error;
     }
 }
+export function filterParentOptions(allCategories, excludeIds) {
+    return allCategories.filter(cat => !excludeIds.includes(cat.id));
+}
+
+
+

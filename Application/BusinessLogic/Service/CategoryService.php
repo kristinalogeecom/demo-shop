@@ -139,4 +139,17 @@ class CategoryService implements CategoryServiceInterface
     {
         return $this->categoryRepository->getFlatCategories();
     }
+
+    public function getDescendantIds(int $categoryId): array
+    {
+        $descendants = [];
+
+        $children = Category::where('parent_id', $categoryId)->get();
+        foreach ($children as $child) {
+            $descendants[] = $child->id;
+            $descendants = array_merge($descendants, $this->getDescendantIds($child->id));
+        }
+
+        return $descendants;
+    }
 }

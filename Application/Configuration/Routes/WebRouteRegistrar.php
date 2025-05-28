@@ -169,6 +169,14 @@ class WebRouteRegistrar
                 $categoryController->deleteCategory($request)->send();
             });
         });
+
+        $router->addRoute('GET', '/admin/categories/{id}/descendants', function () use ($categoryController) {
+            self::secure(function () use ($categoryController) {
+                $id = ServiceRegistry::get(Request::class)->param('id');
+                $categoryController->getDescendantIds($id)->send();
+            });
+        });
+
     }
 
 

@@ -10,7 +10,9 @@ import {
     fetchCategory,
     fetchFlatCategories,
     saveCategory,
-    deleteCategoryById
+    deleteCategoryById,
+    fetchDescendantCategoryIds,
+    filterParentOptions
 } from './categoryService.js';
 
 export async function loadCategoriesView() {
@@ -78,7 +80,16 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     const selectedCategoryId = document.querySelector('.category-item.active')?.dataset.id || null;
     const allCategories = await fetchFlatCategories();
 
-    panel.innerHTML = renderCategoryForm({ categoryId, parentId, allCategories });
+    let excludeIds = [];
+
+    if (categoryId) {
+        excludeIds = await fetchDescendantCategoryIds(categoryId);
+        excludeIds.push(parseInt(categoryId));
+    }
+
+    const filteredCategories = allCategories.filter(cat => !excludeIds.includes(cat.id));
+
+    panel.innerHTML = renderCategoryForm({ categoryId, parentId, allCategories: filteredCategories });
 
     const parentSelect = document.getElementById('parentSelect');
     if (!categoryId && !parentId) parentSelect.disabled = true;
