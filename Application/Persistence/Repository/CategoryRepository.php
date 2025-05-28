@@ -142,7 +142,6 @@ class CategoryRepository implements CategoryRepositoryInterface
         return $branch;
     }
 
-
     /**
      * Recursively deletes all child categories of the given category.
      *

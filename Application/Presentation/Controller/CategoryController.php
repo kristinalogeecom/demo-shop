@@ -17,7 +17,6 @@ use Throwable;
  */
 class CategoryController
 {
-
     /**
      * Retrieves all categories in a tree structure.
      *
@@ -144,7 +143,11 @@ class CategoryController
     }
 
     /**
-     * @throws Exception
+     * Retrieves the category service instance from the service container.
+     *
+     * @return CategoryServiceInterface The category service.
+     *
+     * @throws Exception If the service is not properly registered.
      */
     private function categoryService(): CategoryServiceInterface
     {

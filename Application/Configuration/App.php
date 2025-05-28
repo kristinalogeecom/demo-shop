@@ -29,10 +29,23 @@ use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
+/**
+ * Application bootstrapper responsible for initializing core components.
+ *
+ * Handles:
+ * - Environment loading
+ * - Database configuration
+ * - Dependency injection setup
+ * - Route registration and dispatching
+ */
 class App
 {
     /**
-     * @throws Exception
+     * Boots the application by initializing database, services, and router.
+     *
+     * @throws Exception If any initialization step fails.
+     *
+     * @return void
      */
     public static function boot(): void
     {
@@ -41,9 +54,15 @@ class App
         self::initRouter();
     }
 
-
     /**
-     * @throws Exception
+     * Initializes the database connection using Eloquent ORM.
+     *
+     * Loads environment variables from the .env file and sets
+     * up the database connection parameters for Eloquent.
+     *
+     * @throws Exception If the .env file is missing or connection setup fails.
+     *
+     * @return void
      */
     private static function initDatabase(): void
     {
@@ -71,8 +90,13 @@ class App
         $capsule->bootEloquent();
     }
 
+
     /**
-     * @throws Exception
+     * Registers services and dependencies in the application's service container.
+     *
+     * @throws Exception If encryption key is not set or service initialization fails.
+     *
+     * @return void
      */
     private static function initServices(): void
     {
@@ -104,7 +128,11 @@ class App
     }
 
     /**
-     * @throws Exception
+     * Initializes the application's router and dispatches the incoming request.
+     *
+     * @throws Exception If routing setup fails.
+     *
+     * @return void
      */
     private static function initRouter(): void
     {

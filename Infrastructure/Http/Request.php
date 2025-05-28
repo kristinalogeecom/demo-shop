@@ -99,7 +99,7 @@ class Request
      *
      * @return mixed
      */
-    public function param(string $key, mixed$default = null): mixed
+    public function param(string $key, mixed $default = null): mixed
     {
         return $this->routeParams[$key] ?? $default;
     }

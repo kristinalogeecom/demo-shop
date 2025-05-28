@@ -51,6 +51,13 @@ interface CategoryServiceInterface
      */
     public function getFlatCategories(): array;
 
+    /**
+     * Retrieves descendant categories IDs in a list.
+     *
+     * @param int $categoryId
+     *
+     * @return array The list of categories.
+     */
     public function getDescendantIds(int $categoryId): array;
 
 }

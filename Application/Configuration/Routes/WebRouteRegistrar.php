@@ -11,8 +11,21 @@ use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
 use DemoShop\Infrastructure\Router\Route;
 use DemoShop\Infrastructure\Router\RouteDispatcher;
 
+/**
+ * Registers all web routes for the application.
+ *
+ * Defines mappings between HTTP methods and URL patterns
+ * to controller actions, with optional middleware.
+ */
 class WebRouteRegistrar
 {
+    /**
+     * Registers all web application routes to the provided dispatcher.
+     *
+     * @param RouteDispatcher $dispatcher
+     *
+     * @return void
+     */
     public static function register(RouteDispatcher $dispatcher): void
     {
         $authController = new AuthenticationController();

@@ -12,7 +12,7 @@ use Exception;
 
 /**
  * Handles authentication-related HTTP actions for admin users,
- * including login and logout endpoints.
+ * including login and logout, error pages and the visitor landing page.
  */
 class AuthenticationController
 {
@@ -50,7 +50,7 @@ class AuthenticationController
      * @param Request $request The current HTTP request.
      *
      * @return Response Redirects to login page after logout.
-     * @throws \Exception
+     * @throws Exception
      */
     public function logout(Request $request): Response
     {
@@ -58,6 +58,13 @@ class AuthenticationController
         return new RedirectResponse('/admin/login');
     }
 
+    /**
+     * Displays the admin login page.
+     *
+     * @param Request $request The current HTTP request.
+     *
+     * @return Response Rendered login HTML page.
+     */
     public function showLoginPage(Request $request): Response
     {
         return new HtmlResponse('Login', [
@@ -66,23 +73,48 @@ class AuthenticationController
         ]);
     }
 
+    /**
+     * Displays the 404 Not Found error page.
+     *
+     * @param Request $request The current HTTP request.
+     *
+     * @return Response Rendered 404 error page.
+     */
     public function error404(Request $request): Response
     {
         return new HtmlResponse('Error404');
     }
 
+    /**
+     * Displays the 505 Internal Server Error page.
+     *
+     * @param Request $request The current HTTP request.
+     *
+     * @return Response Rendered 505 error page.
+     */
     public function error505(Request $request): Response
     {
         return new HtmlResponse('Error505');
     }
 
+    /**
+     * Displays the public-facing visitor landing page.
+     *
+     * @param Request $request The current HTTP request.
+     *
+     * @return Response Rendered visitor page.
+     */
     public function visitorPage(Request $request): Response
     {
         return new HtmlResponse('Visitor');
     }
 
     /**
-     * @throws Exception
+     * Retrieves the authentication service instance from the service container.
+     *
+     * @return AuthenticationServiceInterface The authentication service.
+     *
+     * @throws Exception If the service is not registered.
      */
     private function authenticationService(): AuthenticationServiceInterface
     {

@@ -151,7 +151,6 @@ class CategoryService implements CategoryServiceInterface
             throw new Exception('Code must be exactly 4 digits.');
         }
 
-
         if ($description === '') {
             throw new Exception('Category description is required.');
         }

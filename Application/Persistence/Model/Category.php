@@ -20,8 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Collection|Category[] $children List of child categories.
  * @property Collection|Product[] $products List of products in this category.
  *
- * @method static where(string $string, mixed $parent_id)
- * @method static find(mixed $id)
+ * @method static where(string $string, int $parent_id)
+ * @method static find(int $id)
  * @method static select(string $string, string $string1)
  * @method static withCount(string $string)
  */
