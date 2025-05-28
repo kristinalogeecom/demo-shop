@@ -11,8 +11,7 @@ import {
     fetchFlatCategories,
     saveCategory,
     deleteCategoryById,
-    fetchDescendantCategoryIds,
-    filterParentOptions
+    fetchDescendantCategoryIds
 } from './categoryService.js';
 
 export async function loadCategoriesView() {
@@ -117,11 +116,18 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
             code: document.getElementById('categoryCode').value,
             description: document.getElementById('categoryDescription').value
         };
-        if (!data.name.trim()) return alert('Category name is required.');
 
-        const saved = await saveCategory(data);
-        await refreshCategoriesTree(saved.id, saved.parent_id);
-        enableUI();
+        const errorBox = document.getElementById('formErrorMessage');
+        errorBox.textContent = '';
+
+        try {
+            const saved = await saveCategory(data);
+            await refreshCategoriesTree(saved.id, saved.parent_id);
+            enableUI();
+        } catch (error) {
+            errorBox.textContent = error.message;
+            enableUI();
+        }
     });
 
     if (categoryId) {

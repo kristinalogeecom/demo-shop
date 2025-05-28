@@ -75,7 +75,7 @@ export function renderCategoryForm({ categoryId, parentId, allCategories }) {
             <input type="hidden" id="categoryId" value="${categoryId || ''}">
             <div class="detail-row">
                 <label class="detail-label" for="categoryName">Title:</label>
-                <input class="detail-input" type="text" id="categoryName" required>
+                <input class="detail-input" type="text" id="categoryName">
             </div>
             <div class="detail-row">
                 <label class="detail-label" for="parentSelect">Parent category:</label>
@@ -92,6 +92,7 @@ export function renderCategoryForm({ categoryId, parentId, allCategories }) {
                 <label class="detail-label" for="categoryDescription">Description:</label>
                 <textarea class="detail-input" id="categoryDescription" rows="4"></textarea>
             </div>
+            <div id="formErrorMessage" class="form-error-message" style="color:red; margin-top: 10px;"></div>
             <div class="category-actions">
                 <button type="submit" class="btn btn-primary">
                     ${categoryId ? 'Update' : 'Save'}

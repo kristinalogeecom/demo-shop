@@ -117,6 +117,14 @@ class CategoryController
         }
     }
 
+
+    /**
+     * Retrieves descendant categories IDs in a list.
+     *
+     * @param $id
+     *
+     * @return Response JSON response with a list of descendant IDs
+     */
     public function getDescendantIds($id): Response
     {
         return new JsonResponse($this->categoryService->getDescendantIds((int) $id));

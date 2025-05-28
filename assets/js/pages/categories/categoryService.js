@@ -19,16 +19,18 @@ export async function fetchDescendantCategoryIds(categoryId) {
 export async function saveCategory(data) {
     try {
         const response = await post('/admin/categories/save', data);
-        if (!response.success) throw new Error(response.error || 'Save failed');
-        return response.category;
-    } catch (error) {
-        console.error('Error saving category:', error);
-        if (error.message.includes('Duplicate entry') && error.message.includes('code_UNIQUE')) {
-            alert('Error: A category with this code already exists. Please use a different code.');
-        } else {
-            alert('Request failed: ' + error.message);
+        if (!response.success) {
+            throw new Error(response.error || 'Save failed');
         }
-        throw error;
+
+        return response.category;
+
+    } catch (error) {
+        if (error?.message) {
+            throw new Error(error.message);
+        }
+
+        throw new Error('Unexpected error while saving category.');
     }
 }
 
@@ -42,9 +44,5 @@ export async function deleteCategoryById(categoryId) {
         throw error;
     }
 }
-export function filterParentOptions(allCategories, excludeIds) {
-    return allCategories.filter(cat => !excludeIds.includes(cat.id));
-}
-
 
 

@@ -62,24 +62,7 @@ class CategoryService implements CategoryServiceInterface
      */
     public function saveCategory(CategoryModel $category): CategoryModel
     {
-        $name = trim($category->getName());
-
-        if ($name === '') {
-            throw new Exception('Category name is required');
-        }
-
-        $duplicateExists = Category::where('name', $category->getName())
-            ->where('parent_id', $category->getParentId())
-            ->when(
-                $category->getId() !== null,
-                fn($q) => $q->where('id', '!=', $category->getId())
-            )
-            ->exists();
-
-        if ($duplicateExists) {
-            throw new Exception('Category with this name already exists in this parent category');
-        }
-
+        $this->validateCategory($category);
         return $this->categoryRepository->saveCategory($category);
     }
 
@@ -110,6 +93,94 @@ class CategoryService implements CategoryServiceInterface
         return $this->categoryRepository->deleteCategory($id);
     }
 
+
+    /**
+     * Retrieves all categories in a flat list (no hierarchy).
+     *
+     * @return array The list of categories.
+     */
+    public function getFlatCategories(): array
+    {
+        return $this->categoryRepository->getFlatCategories();
+    }
+
+    /**
+     * Retrieves descendant categories IDs in a list.
+     *
+     * @param int $categoryId
+     *
+     * @return array The list of categories.
+     */
+    public function getDescendantIds(int $categoryId): array
+    {
+        $descendants = [];
+
+        $children = Category::where('parent_id', $categoryId)->get();
+        foreach ($children as $child) {
+            $descendants[] = $child->id;
+            $descendants = array_merge($descendants, $this->getDescendantIds($child->id));
+        }
+
+        return $descendants;
+    }
+
+    /**
+     * Validates category name, code and description.
+     *
+     * @param CategoryModel $category
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function validateCategory(CategoryModel $category): void
+    {
+        $name = trim($category->getName());
+        $code = trim($category->getCode());
+        $description = trim($category->getDescription());
+
+        if ($name === '') {
+            throw new Exception('Category name is required');
+        }
+
+        if($code === '') {
+            throw new Exception('Category code is required');
+        }
+
+        if (!preg_match('/^\d{4}$/', $code)) {
+            throw new Exception('Code must be exactly 4 digits.');
+        }
+
+
+        if ($description === '') {
+            throw new Exception('Category description is required.');
+        }
+
+        $duplicateCode = Category::where('code', $code)
+            ->when(
+                $category->getId() !== null,
+                fn($q) => $q->where('id', '!=', $category->getId())
+            )
+            ->exists();
+
+        if ($duplicateCode) {
+            throw new Exception('Code must be unique.');
+        }
+
+        $duplicateName = Category::where('name', $name)
+            ->where('parent_id', $category->getParentId())
+            ->when(
+                $category->getId() !== null,
+                fn($q) => $q->where('id', '!=', $category->getId())
+            )
+            ->exists();
+
+        if ($duplicateName) {
+            throw new Exception('Category with this name already exists in this parent category');
+        }
+
+    }
+
     /**
      * Recursively checks subcategories for products.
      *
@@ -130,26 +201,4 @@ class CategoryService implements CategoryServiceInterface
         }
     }
 
-    /**
-     * Retrieves all categories in a flat list (no hierarchy).
-     *
-     * @return array The list of categories.
-     */
-    public function getFlatCategories(): array
-    {
-        return $this->categoryRepository->getFlatCategories();
-    }
-
-    public function getDescendantIds(int $categoryId): array
-    {
-        $descendants = [];
-
-        $children = Category::where('parent_id', $categoryId)->get();
-        foreach ($children as $child) {
-            $descendants[] = $child->id;
-            $descendants = array_merge($descendants, $this->getDescendantIds($child->id));
-        }
-
-        return $descendants;
-    }
 }
