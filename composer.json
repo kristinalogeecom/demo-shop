@@ -3,7 +3,7 @@
   "description": "PHP project for demo-shop.",
   "autoload": {
     "psr-4": {
-      "DemoShop\\": ""
+      "DemoShop\\": "src/"
     }
   },
   "require": {

@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="../../resources/css/login.css">
+
+<div class="login-wrapper">
+    <h1>Welcome</h1>
+    <p class="subtitle">To demo shop administration!</p>
+
+    <form method="POST" action="/admin/login" id="loginForm">
+        <label for="username">username:</label>
+        <input type="text" name="username" id="username" value="<?= htmlspecialchars($username ?? '') ?>">
+
+        <label for="password">password:</label>
+        <input type="password" name="password" id="password">
+
+        <div class="options">
+            <div class="checkbox-row">
+                <label>
+                    <input type="checkbox" name="remember_me" id="remember_me">
+                    keep me logged in
+                </label>
+            </div>
+            <button type="submit">Log in</button>
+        </div>
+
+        <?php if (!empty($errors)): ?>
+            <div class="error-box">
+                <?php foreach ($errors as $error): ?>
+                    <p><?= htmlspecialchars($error) ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+    </form>
+</div>
