@@ -3,6 +3,10 @@
 namespace DemoShop\Application\Persistence\Encryption;
 
 use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
+use DemoShop\Infrastructure\Exception\DecryptionException;
+use DemoShop\Infrastructure\Exception\EncryptionException;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\Encryption\EncryptException;
 use Illuminate\Encryption\Encrypter as IlluminateEncrypter;
 
 /**
@@ -32,10 +36,16 @@ class Encrypter implements EncryptionInterface
      * @param string $plainText The data to encrypt.
      *
      * @return string The encrypted (cipher) text.
+     *
+     * @throws EncryptionException
      */
     public function encrypt(string $plainText): string
     {
-        return $this->encrypter->encrypt($plainText);
+        try {
+            return $this->encrypter->encrypt($plainText);
+        } catch (EncryptException $e) {
+            throw new EncryptionException('Encryption failed: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**
@@ -44,9 +54,15 @@ class Encrypter implements EncryptionInterface
      * @param string $cipherText The encrypted data to decrypt.
      *
      * @return string The original plain text.
+     * 
+     * @throws DecryptionException
      */
     public function decrypt(string $cipherText): string
     {
-        return $this->encrypter->decrypt($cipherText);
+        try {
+            return $this->encrypter->decrypt($cipherText);
+        } catch (DecryptException $e) {
+            throw new DecryptionException("Failed to decrypt data.", 0, $e);
+        }
     }
 }

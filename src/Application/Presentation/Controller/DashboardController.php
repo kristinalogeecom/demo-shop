@@ -4,11 +4,11 @@ namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Application\BusinessLogic\ServiceInterface\DashboardServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
-use Exception;
 
 /**
  * Handles HTTP requests related to admin dashboard statistics.
@@ -29,21 +29,23 @@ class DashboardController
      *
      * @param Request $request The current HTTP request
      * @return Response JSON response with dashboard data.
-     * @throws Exception
+     *
+     * @throws ServiceNotFoundException
      */
     public function getDashboardStats(Request $request): Response
     {
-        return new JsonResponse($this->dashboardService()->getDashboardStats());
+        return new JsonResponse($this->getDashboardService()->getDashboardStats());
     }
+
 
     /**
      * Retrieves the dashboard service instance from the service container.
      *
-     * @return DashboardServiceInterface The dashboard service.
+     * @return DashboardServiceInterface
      *
-     * @throws Exception If the service is not properly registered.
+     * @throws ServiceNotFoundException
      */
-    private function dashboardService(): DashboardServiceInterface
+    private function getDashboardService(): DashboardServiceInterface
     {
         return ServiceRegistry::get(DashboardServiceInterface::class);
     }

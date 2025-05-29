@@ -3,6 +3,10 @@
 namespace DemoShop\Infrastructure\Router;
 
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\ControllerMethodNotFoundException;
+use DemoShop\Infrastructure\Exception\ControllerNotFoundException;
+use DemoShop\Infrastructure\Exception\NotFoundException;
+use DemoShop\Infrastructure\Exception\ResponseException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\Response;
 use Exception;
@@ -64,39 +68,42 @@ class RouteDispatcher
         $method = $this->request->method();
         $url = rtrim($this->request->url(), '/') ?: '/';
 
-        foreach ($this->routes[$method] ?? [] as $route) {
-            if ($route->matches($url)) {
-                $this->request->setRouteParams($route->extractParams($url));
+        try {
+            foreach ($this->routes[$method] ?? [] as $route) {
+                if ($route->matches($url)) {
+                    $this->request->setRouteParams($route->extractParams($url));
 
-                foreach ($route->getMiddlewares() as $middlewareClass) {
-                    $middleware = ServiceRegistry::get($middlewareClass);
-                    $middleware->check($this->request);
+                    foreach ($route->getMiddlewares() as $middlewareClass) {
+                        $middleware = ServiceRegistry::get($middlewareClass);
+                        $middleware->check($this->request);
+                    }
+
+                    [$controllerClass, $actionMethod] = $route->getControllerAction();
+
+                    if (!class_exists($controllerClass)) {
+                        throw new ControllerNotFoundException($controllerClass);
+                    }
+
+                    $controller = new $controllerClass();
+
+                    if (!method_exists($controller, $actionMethod)) {
+                        throw new ControllerMethodNotFoundException($controllerClass, $actionMethod);
+                    }
+
+                    $response = $controller->$actionMethod($this->request);
+
+                    if ($response instanceof Response) {
+                        $response->send();
+                    }
+
+                    return;
                 }
-
-                list($controllerClass, $method) = $route->getControllerAction();
-
-                if (!class_exists($controllerClass)) {
-                    throw new Exception("Controller class $controllerClass does not exist.");
-                }
-
-                $controller = new $controllerClass();
-
-                if (!method_exists($controller, $method)) {
-                    throw new Exception("Method $method does not exist in controller $controllerClass.");
-                }
-
-                $response = $controller->$method($this->request);
-
-                if ($response instanceof Response) {
-                    $response->send();
-                }
-
-                return;
             }
-        }
 
-        // THROW EXCEPTION !!!
-        header("Location: /404");
-        exit;
+            throw new NotFoundException("No matching route for $method $url");
+
+        } catch (ResponseException $e) {
+            $e->getResponse()->send();
+        }
     }
 }

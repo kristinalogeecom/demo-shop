@@ -5,11 +5,13 @@ namespace DemoShop\Application\Presentation\Controller;
 use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\Exception;
+use DemoShop\Infrastructure\Exception\NotFoundException;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
+use DemoShop\Infrastructure\Exception\ValidationException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
-use Exception;
-use Throwable;
 
 
 /**
@@ -27,9 +29,11 @@ class CategoryController
     public function getCategories(Request $request): Response
     {
         try {
-            return new JsonResponse($this->categoryService()->getAllCategories());
-        } catch (Exception $e) {
-            return new JsonResponse(['errors' => $e->getMessage()], 500);
+            return new JsonResponse($this->getCategoryService()->getAllCategories());
+        } catch (NotFoundException $e) {
+            return new JsonResponse(['errors' => $e->getMessage()], 404);
+        } catch (ServiceNotFoundException $e) {
+            return new JsonResponse(['errors' => $e->getMessage()], 505);
         }
     }
 
@@ -43,9 +47,11 @@ class CategoryController
     public function getFlatCategories(Request $request): Response
     {
         try {
-            return new JsonResponse($this->categoryService()->getFlatCategories());
-        } catch (Exception $e) {
-            return new JsonResponse(['errors' => $e->getMessage()], 500);
+            return new JsonResponse($this->getCategoryService()->getFlatCategories());
+        } catch (NotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        } catch (ServiceNotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 505);
         }
     }
 
@@ -65,9 +71,11 @@ class CategoryController
         }
 
         try {
-            return new JsonResponse($this->categoryService()->getCategoryById($id));
-        } catch (Exception $e) {
-            return new JsonResponse(['errors' => $e->getMessage()], 500);
+            return new JsonResponse($this->getCategoryService()->getCategoryById($id));
+        }  catch (NotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        } catch (ServiceNotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 505);
         }
     }
 
@@ -85,18 +93,24 @@ class CategoryController
                 $request->only(['id', 'parent_id', 'name', 'code', 'description'])
             );
 
-            $saved = $this->categoryService()->saveCategory($category);
+            $saved = $this->getCategoryService()->saveCategory($category);
 
             return new JsonResponse([
                 'success' => true,
                 'category' => $saved->toArray()
             ]);
-        } catch (Throwable $e) {
+        } catch (ValidationException $e) {
             return new JsonResponse([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ], 400);
+                'errors' => $e->getErrors()
+            ], 422);
+        } catch (NotFoundException $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'error' => 'Unexpected error: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -115,10 +129,14 @@ class CategoryController
         }
 
         try {
-            $this->categoryService()->deleteCategory($id);
+            $this->getCategoryService()->deleteCategory($id);
             return new JsonResponse(['success' => true]);
-        } catch (Throwable $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
+        } catch (ValidationException $e) {
+            return new JsonResponse(['errors' => $e->getErrors()], 422);
+        } catch (NotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        } catch (ServiceNotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 505);
         }
     }
 
@@ -129,7 +147,6 @@ class CategoryController
      * @param Request $request
      *
      * @return Response JSON response with a list of descendant IDs
-     * @throws Exception
      */
     public function getDescendantIds(Request $request): Response
     {
@@ -139,19 +156,27 @@ class CategoryController
             return new JsonResponse(['error' => 'Category ID is missing.'], 400);
         }
 
-        return new JsonResponse($this->categoryService()->getDescendantIds((int) $id));
+        try {
+            return new JsonResponse($this->getCategoryService()->getDescendantIds($id));
+        } catch (NotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        } catch (ServiceNotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 505);
+        }
     }
+
 
     /**
      * Retrieves the category service instance from the service container.
      *
-     * @return CategoryServiceInterface The category service.
+     * @return CategoryServiceInterface
      *
-     * @throws Exception If the service is not properly registered.
+     * @throws ServiceNotFoundException
      */
-    private function categoryService(): CategoryServiceInterface
+    private function getCategoryService(): CategoryServiceInterface
     {
         return ServiceRegistry::get(CategoryServiceInterface::class);
     }
+
 
 }

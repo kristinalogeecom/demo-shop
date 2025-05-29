@@ -2,6 +2,8 @@
 
 namespace DemoShop\Infrastructure\Response;
 
+use DemoShop\Infrastructure\Exception\ResponseException;
+
 /**
  * Represents a JSON API response.
  */
@@ -27,11 +29,24 @@ class JsonResponse extends Response
      * Sends the JSON response.
      *
      * @return void
+     *
+     * @throws ResponseException
      */
     public function send(): void
     {
         parent::send();
-        echo json_encode($this->data);
+        $json = json_encode($this->data, JSON_UNESCAPED_UNICODE);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new ResponseException(
+                new self([
+                    'error' => 'Failed to encode response as JSON',
+                    'details' => json_last_error_msg()
+                ], 500)
+            );
+        }
+
+        echo $json;
     }
 
 }

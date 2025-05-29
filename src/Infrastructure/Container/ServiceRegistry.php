@@ -2,7 +2,7 @@
 
 namespace DemoShop\Infrastructure\Container;
 
-use Exception;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
 
 class ServiceRegistry
 {
@@ -28,12 +28,13 @@ class ServiceRegistry
      * @param string $key
      *
      * @return object
-     * @throws Exception
+     *
+     * @throws ServiceNotFoundException
      */
     public static function get(string $key): object
     {
         if (!isset(self::$services[$key])) {
-            throw new Exception("Service ' $key ' not found");
+            throw new ServiceNotFoundException($key);
         }
 
         return self::$services[$key];

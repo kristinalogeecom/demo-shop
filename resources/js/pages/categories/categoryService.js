@@ -19,6 +19,11 @@ export async function fetchDescendantCategoryIds(categoryId) {
 export async function saveCategory(data) {
     try {
         const response = await post('/admin/categories/save', data);
+
+        if (response.errors) {
+            throw new Error(response.errors.join('\n'));
+        }
+
         if (!response.success) {
             throw new Error(response.error || 'Save failed');
         }

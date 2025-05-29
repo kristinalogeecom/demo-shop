@@ -4,6 +4,7 @@ namespace DemoShop\Infrastructure\Security;
 
 use DateTime;
 use DemoShop\Application\BusinessLogic\Encryption\EncryptionInterface;
+use DemoShop\Infrastructure\Exception\InvalidCookieException;
 use Throwable;
 
 /**
@@ -95,6 +96,8 @@ class CookieManager
      * @param string $name The name of the cookie to read.
      *
      * @return array|null The decrypted session data, or null on failure.
+     *
+     * @throws InvalidCookieException
      */
     public function getDecryptedSession(string $name): ?array
     {
@@ -103,9 +106,15 @@ class CookieManager
 
         try {
             $json = $this->encryption->decrypt($encrypted);
-            return json_decode($json, true);
+            $data = json_decode($json, true);
+
+            if (!is_array($data)) {
+                throw new InvalidCookieException($name);
+            }
+
+            return $data;
         } catch (Throwable) {
-            return null;
+            throw new InvalidCookieException($name);
         }
     }
 

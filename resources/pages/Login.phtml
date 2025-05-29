@@ -23,7 +23,7 @@
 
         <?php if (!empty($errors)): ?>
             <div class="error-box">
-                <?php foreach ($errors as $error): ?>
+                <?php foreach ((array) $errors  as $error): ?>
                     <p><?= htmlspecialchars($error) ?></p>
                 <?php endforeach; ?>
             </div>

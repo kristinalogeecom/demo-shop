@@ -41,18 +41,26 @@ class HtmlResponse extends Response
 
         // Render static HTML file if full path provided
         if(str_ends_with($this->templateOrPath, '.html') || str_contains($this->templateOrPath,  DIRECTORY_SEPARATOR)) {
-            if(file_exists($this->templateOrPath)) {
-                readfile($this->templateOrPath);
-            } else {
-                echo '404 - File not found';
+            if (!file_exists($this->templateOrPath)) {
+                echo "Static HTML file not found";
+                return;
             }
+
+            readfile($this->templateOrPath);
             return;
         }
 
         // Render dynamic PHTML template
+        $templatePath = __DIR__ . '/../../../resources/pages/' . $this->templateOrPath . '.phtml';
+
+        if (!file_exists($templatePath)) {
+            echo "Template not found.";
+            return;
+        }
+
         ob_start();
         extract($this->params);
-        include __DIR__ . '/../../../resources/pages/' . $this->templateOrPath . '.phtml';
+        include $templatePath;
         echo ob_get_clean();
     }
 

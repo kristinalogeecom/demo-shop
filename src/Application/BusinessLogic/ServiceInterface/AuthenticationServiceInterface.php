@@ -27,9 +27,9 @@ interface AuthenticationServiceInterface
      *
      * @param string|null $password
      *
-     * @return ?string Returns null if valid, or an error message if invalid.
+     * @return void
      */
-    public function validatePassword(?string $password): ?string;
+    public function validatePassword(?string $password): void;
 
     /**
      * Logs out the admin by removing authentication cookies and token from storage.

@@ -7,7 +7,6 @@ namespace DemoShop\Infrastructure\Response;
  */
 class RedirectResponse extends Response
 {
-
     /**
      * RedirectResponse constructor.
      *

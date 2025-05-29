@@ -4,6 +4,10 @@ namespace DemoShop\Application\Presentation\Controller;
 use DemoShop\Application\BusinessLogic\Model\Admin;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\DecryptionException;
+use DemoShop\Infrastructure\Exception\EncryptionException;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
+use DemoShop\Infrastructure\Exception\ValidationException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\RedirectResponse;
@@ -30,11 +34,32 @@ class AuthenticationController
         $admin = new Admin(
             $request->input('username'),
             $request->input('password'),
-            $request->input('remember_me') === 'on'
+            $request->has('remember_me')
         );
 
-
-        $success = $this->authenticationService()->attemptLogin($admin, $request);
+        try{
+            $success = $this->getAuthenticationService()->attemptLogin($admin, $request);
+        } catch (DecryptionException) {
+            return new HtmlResponse('Login', [
+                'errors' => ['Invalid encrypted data.'],
+                'username' => $admin->getUsername(),
+            ]);
+        } catch (EncryptionException) {
+            return new HtmlResponse('Login', [
+                'errors' => ['Failed to encrypt data.'],
+                'username' => $admin->getUsername(),
+            ]);
+        } catch (ValidationException $e) {
+            return new HtmlResponse('Login', [
+                'errors' => [$e->getMessage()],
+                'username' => $admin->getUsername(),
+            ]);
+        } catch (Exception $e){
+            return new HtmlResponse('Login', [
+                'errors' => ['Unexpected error occurred.'],
+                'username' => $admin->getUsername(),
+            ]);
+        }
 
         return $success
             ? new RedirectResponse('/admin/dashboard')
@@ -50,11 +75,12 @@ class AuthenticationController
      * @param Request $request The current HTTP request.
      *
      * @return Response Redirects to login page after logout.
-     * @throws Exception
+     *
+     * @throws ServiceNotFoundException
      */
     public function logout(Request $request): Response
     {
-        $this->authenticationService()->logout($request);
+        $this->getAuthenticationService()->logout($request);
         return new RedirectResponse('/admin/login');
     }
 
@@ -80,30 +106,6 @@ class AuthenticationController
     }
 
     /**
-     * Displays the 404 Not Found error page.
-     *
-     * @param Request $request The current HTTP request.
-     *
-     * @return Response Rendered 404 error page.
-     */
-    public function error404(Request $request): Response
-    {
-        return new HtmlResponse('Error404');
-    }
-
-    /**
-     * Displays the 505 Internal Server Error page.
-     *
-     * @param Request $request The current HTTP request.
-     *
-     * @return Response Rendered 505 error page.
-     */
-    public function error505(Request $request): Response
-    {
-        return new HtmlResponse('Error505');
-    }
-
-    /**
      * Displays the public-facing visitor landing page.
      *
      * @param Request $request The current HTTP request.
@@ -116,13 +118,11 @@ class AuthenticationController
     }
 
     /**
-     * Retrieves the authentication service instance from the service container.
+     * @return AuthenticationServiceInterface
      *
-     * @return AuthenticationServiceInterface The authentication service.
-     *
-     * @throws Exception If the service is not registered.
+     * @throws ServiceNotFoundException
      */
-    private function authenticationService(): AuthenticationServiceInterface
+    private function getAuthenticationService(): AuthenticationServiceInterface
     {
         return ServiceRegistry::get(AuthenticationServiceInterface::class);
     }

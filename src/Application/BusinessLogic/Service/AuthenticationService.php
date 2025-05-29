@@ -8,6 +8,8 @@ use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryI
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
+use DemoShop\Infrastructure\Exception\ValidationException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Security\CookieManager;
 use Exception;
@@ -22,8 +24,9 @@ class AuthenticationService implements AuthenticationServiceInterface
     private AdminTokenRepositoryInterface $adminTokenRepository;
     private CookieManager $cookieManager;
 
+
     /**
-     * @throws Exception
+     * @throws ServiceNotFoundException
      */
     public function __construct()
     {
@@ -47,26 +50,30 @@ class AuthenticationService implements AuthenticationServiceInterface
     {
         $adminFromDb = $this->authenticationRepository->findByUsername($admin->getUsername());
 
-        if ($adminFromDb !== null &&
-            $this->authenticationRepository->verifyPassword($adminFromDb, $admin->getPassword())) {
-
-            if ($admin->isRememberMe()) {
-                $token = bin2hex(random_bytes(32));
-                $expires = new DateTime('+30 days');
-                $this->cookieManager->setPersistentToken('admin_token', $token, $expires);
-                $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
-            } else {
-                $expires = new DateTime('+30 minutes');
-                $this->cookieManager->setEncryptedSession('admin_session', [
-                    'admin_id' => $adminFromDb->id,
-                    'exp' => $expires->getTimestamp(),
-                ], $expires);
-            }
-
-            return true;
+        if (!$adminFromDb) {
+            return false;
         }
 
-        return false;
+        if (!$this->authenticationRepository->verifyPassword($adminFromDb, $admin->getPassword())) {
+            return false;
+        }
+
+        $expires = $admin->isRememberMe()
+            ? new DateTime('+30 days')
+            : new DateTime('+30 minutes');
+
+        if ($admin->isRememberMe()) {
+            $token = bin2hex(random_bytes(32));
+            $this->cookieManager->setPersistentToken('admin_token', $token, $expires);
+            $this->adminTokenRepository->storeToken($adminFromDb->id, $token, $expires);
+        } else {
+            $this->cookieManager->setEncryptedSession('admin_session', [
+                'admin_id' => $adminFromDb->id,
+                'exp' => $expires->getTimestamp(),
+            ], $expires);
+        }
+
+        return true;
     }
 
     /**
@@ -74,9 +81,11 @@ class AuthenticationService implements AuthenticationServiceInterface
      *
      * @param string|null $password
      *
-     * @return string|null A validation error message if invalid; null if valid.
+     * @return void
+     *
+     * @throws ValidationException
      */
-    public function validatePassword(?string $password): ?string
+    public function validatePassword(?string $password): void
     {
         if (
             empty($password) ||
@@ -86,11 +95,11 @@ class AuthenticationService implements AuthenticationServiceInterface
             !preg_match('/[0-9]/', $password) ||
             !preg_match('/[^a-zA-Z0-9]/', $password)
         ) {
-            return 'Password must be at least 8 characters long and contain 
-            at least one uppercase letter, one lowercase letter, one number, and one special character.';
+            throw new ValidationException(
+                ['Password must be at least 8 characters long and contain 
+            at least one uppercase letter, one lowercase letter, one number, and one special character.']
+            );
         }
-
-        return null;
     }
 
     /**

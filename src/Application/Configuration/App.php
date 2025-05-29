@@ -20,6 +20,9 @@ use DemoShop\Application\Persistence\Repository\AuthenticationRepository;
 use DemoShop\Application\Persistence\Repository\CategoryRepository;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\InvalidArgumentException;
+use DemoShop\Infrastructure\Exception\NotFoundException;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Middleware\AdminAuthMiddleware;
 use DemoShop\Infrastructure\Middleware\PasswordPolicyMiddleware;
@@ -61,7 +64,7 @@ class App
      * Loads environment variables from the .env file and sets
      * up the database connection parameters for Eloquent.
      *
-     * @throws Exception If the .env file is missing or connection setup fails.
+     * @throws NotFoundException If the .env file is missing or connection setup fails.
      *
      * @return void
      */
@@ -69,7 +72,7 @@ class App
     {
         $envPath = realpath(__DIR__ . '/../../../');
         if (!file_exists($envPath . '/.env')) {
-            throw new Exception('.env file is missing.');
+            throw new NotFoundException('.env file is missing.');
         }
 
         $dotenv = Dotenv::createImmutable($envPath);
@@ -95,9 +98,9 @@ class App
     /**
      * Registers services and dependencies in the application's service container.
      *
-     * @throws Exception If encryption key is not set or service initialization fails.
-     *
      * @return void
+     *
+     * @throws InvalidArgumentException if encryption key is not set
      */
     private static function initServices(): void
     {
@@ -110,7 +113,7 @@ class App
 
         $rawKey = $_ENV['ENCRYPTION_KEY'];
         if (!$rawKey) {
-            throw new Exception('Encryption key not set.');
+            throw new InvalidArgumentException('Encryption key.');
         }
 
         $encryption = new Encrypter($rawKey);
@@ -130,12 +133,14 @@ class App
         ServiceRegistry::set(CategoryServiceInterface::class, new CategoryService());
     }
 
+
     /**
      * Initializes the application's router and dispatches the incoming request.
      *
-     * @throws Exception If routing setup fails.
-     *
      * @return void
+     *
+     * @throws ServiceNotFoundException
+     * @throws Exception
      */
     private static function initRouter(): void
     {

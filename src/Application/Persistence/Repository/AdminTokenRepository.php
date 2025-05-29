@@ -5,6 +5,7 @@ namespace DemoShop\Application\Persistence\Repository;
 use DateTime;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
 use DemoShop\Application\Persistence\Model\AdminToken;
+use DemoShop\Infrastructure\Exception\NotFoundException;
 use Illuminate\Support\Carbon;
 
 /**
@@ -36,6 +37,8 @@ class AdminTokenRepository implements AdminTokenRepositoryInterface
      * @param string $token The token to search for.
      *
      * @return int|null The admin ID if the token is found and valid; null otherwise.
+     *
+     * @throws NotFoundException
      */
     public function findAdminIdByToken(string $token): ?int
     {
@@ -43,7 +46,7 @@ class AdminTokenRepository implements AdminTokenRepositoryInterface
             ->where('expires_at', '>', Carbon::now())
             ->first();
 
-        return $record ? $record->admin_id : null;
+        return $record?->admin_id; //if $record is not null, return admin_id, otherwise return null
     }
 
     /**

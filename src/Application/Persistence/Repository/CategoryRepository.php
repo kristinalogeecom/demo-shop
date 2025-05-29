@@ -5,7 +5,7 @@ namespace DemoShop\Application\Persistence\Repository;
 use DemoShop\Application\BusinessLogic\Model\CategoryModel;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\Persistence\Model\Category;
-use Exception;
+use DemoShop\Infrastructure\Exception\NotFoundException;
 
 /**
  * Repository implementation for managing product categories,
@@ -34,14 +34,14 @@ class CategoryRepository implements CategoryRepositoryInterface
      *
      * @return array The category data as an associative array.
      *
-     * @throws Exception If the category is not found.
+     * @throws NotFoundException
      */
     public function getCategoryById(int $id): array
     {
         $category = Category::with('parent')->find($id);
 
         if (!$category) {
-            throw new Exception('Category not found');
+            throw new NotFoundException('Category not found');
         }
 
         return $category->toArray();
@@ -67,7 +67,7 @@ class CategoryRepository implements CategoryRepositoryInterface
      *
      * @return CategoryModel The saved category as a model instance.
      *
-     * @throws Exception If updating and the category does not exist.
+     * @throws NotFoundException
      */
     public function saveCategory(CategoryModel $categoryModel): CategoryModel
     {
@@ -76,7 +76,7 @@ class CategoryRepository implements CategoryRepositoryInterface
             : new Category();
 
         if (!$category) {
-            throw new Exception('Category not found');
+            throw new NotFoundException('Category not found');
         }
 
         $category->fill([
@@ -103,13 +103,15 @@ class CategoryRepository implements CategoryRepositoryInterface
      * @param int $id The ID of the category to delete.
      *
      * @return bool True if deletion succeeded, false otherwise.
+     *
+     * @throws NotFoundException
      */
     public function deleteCategory(int $id): bool
     {
         $category = Category::find($id);
 
         if (!$category) {
-            return false;
+            throw new NotFoundException('Category not found');
         }
 
         $this->deleteSubcategories($category);
