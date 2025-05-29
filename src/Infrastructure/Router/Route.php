@@ -14,7 +14,7 @@ namespace DemoShop\Infrastructure\Router;
 class Route
 {
     private string $pattern;
-    private $callable;
+    private array $controllerAction;
     private array $middlewares;
     private string $regex;
 
@@ -22,16 +22,16 @@ class Route
      * Constructs a new Route instance.
      *
      * @param string $pattern The URL pattern (may contain parameters like /{id}).
-     * @param callable $callable The target controller method to execute.
+     * @param array $controllerAction The target controller method to execute.
      * @param array $middlewares List of middleware class names to run before the callable.
      */
     public function __construct(
         string $pattern,
-        callable $callable,
-        array $middlewares = []
+        array  $controllerAction,
+        array  $middlewares = []
     ) {
         $this->pattern = $pattern;
-        $this->callable = $callable;
+        $this->controllerAction = $controllerAction;
         $this->middlewares = $middlewares;
         $this->regex = $this->compilePattern($pattern);
     }
@@ -49,16 +49,24 @@ class Route
     }
 
     /**
-     * Extracts named parameters from the URL based on the route pattern.
+     * Extracts named route parameters from the URL based on the route's regex pattern.
+     *
+     *  For example, if the pattern is "/category/{id}" and the URL is "/category/42",
+     *  this method will return ['id' => '42'].
      *
      * @param string $url The URL to extract parameters from.
      *
-     * @return array An associative array of matched parameters.
+     * @return array<string, string>  An associative array of matched route parameters.
      */
     public function extractParams(string $url): array
     {
-        preg_match($this->regex, $url, $matches);
-        return array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
+        preg_match($this->regex, $url, $matchesWithKeys);
+
+        return array_filter(
+            $matchesWithKeys,
+            fn(string|int $key): bool => !is_int($key),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**
@@ -88,19 +96,28 @@ class Route
      *
      * @return string
      */
-    public function getPattern(): string { return $this->pattern; }
+    public function getPattern(): string
+    {
+        return $this->pattern;
+    }
 
     /**
-     * Gets the callable (controller method) associated with this route.
+     * Gets the controller and method associated with this route.
      *
-     * @return callable
+     * @return array
      */
-    public function getCallable(): callable { return $this->callable; }
+    public function getControllerAction(): array
+    {
+        return $this->controllerAction;
+    }
 
     /**
      * Gets the list of middleware associated with this route.
      *
      * @return array List of class names or middleware instances.
      */
-    public function getMiddlewares(): array { return $this->middlewares; }
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
+    }
 }

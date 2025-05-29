@@ -40,6 +40,8 @@ class Category extends Model
 
     /**
      * Get the parent category
+     *
+     * @return BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -48,6 +50,8 @@ class Category extends Model
 
     /**
      * Get the child categories
+     *
+     * @return HasMany
      */
     public function children(): HasMany
     {
@@ -56,6 +60,8 @@ class Category extends Model
 
     /**
      * Get all products in this category
+     *
+     * @return HasMany
      */
     public function products(): HasMany
     {
@@ -64,6 +70,8 @@ class Category extends Model
 
     /**
      * Check if category has products
+     *
+     * @return bool
      */
     public function hasProducts(): bool
     {
@@ -72,6 +80,8 @@ class Category extends Model
 
     /**
      * Check if category has subcategories
+     *
+     * @return bool
      */
     public function hasChildren(): bool
     {

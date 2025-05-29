@@ -44,7 +44,7 @@ class RouteDispatcher
     }
 
     /**
-     * Dispatches the current request to the first matching route.
+     * Dispatches the current request to the appropriate controller action.
      *
      * Workflow:
      * - Determines request method and URL.
@@ -52,9 +52,10 @@ class RouteDispatcher
      * - Executes all middleware associated with that route.
      * - Calls the route's controller method.
      * - Sends the response to the client.
-     * - Redirects to /404 if no route matches.
      *
-     * @throws Exception If middleware or controller execution fails.
+     * @throws Exception If middleware fails, controller class is missing,
+     *                  controller method does not exist,
+     *                  or no matching route is found.
      *
      * @return void
      */
@@ -72,7 +73,20 @@ class RouteDispatcher
                     $middleware->check($this->request);
                 }
 
-                $response = call_user_func($route->getCallable(), $this->request);
+                list($controllerClass, $method) = $route->getControllerAction();
+
+                if (!class_exists($controllerClass)) {
+                    throw new Exception("Controller class $controllerClass does not exist.");
+                }
+
+                $controller = new $controllerClass();
+
+                if (!method_exists($controller, $method)) {
+                    throw new Exception("Method $method does not exist in controller $controllerClass.");
+                }
+
+                $response = $controller->$method($this->request);
+
                 if ($response instanceof Response) {
                     $response->send();
                 }
@@ -80,6 +94,8 @@ class RouteDispatcher
                 return;
             }
         }
+
+        // THROW EXCEPTION !!!
         header("Location: /404");
         exit;
     }

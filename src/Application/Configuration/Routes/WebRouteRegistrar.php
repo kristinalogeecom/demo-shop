@@ -29,29 +29,21 @@ class WebRouteRegistrar
      */
     public static function register(RouteDispatcher $dispatcher): void
     {
-        $authController = new AuthenticationController();
-        $dashboardController = new DashboardController();
-        $categoryController = new CategoryController();
-        $productController = new ProductController();
+        $dispatcher->register('GET', new Route('/', [AuthenticationController::class, 'visitorPage']));
+        $dispatcher->register('GET', new Route('/admin/login', [AuthenticationController::class, 'showLoginPage'], [RedirectIfAuthenticatedMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/login', [AuthenticationController::class, 'login'], [PasswordPolicyMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/logout', [AuthenticationController::class, 'logout']));
 
-        $dispatcher->register('GET', new Route('/', [$authController, 'visitorPage']));
-        $dispatcher->register('GET', new Route('/admin/login', [$authController, 'showLoginPage'], [RedirectIfAuthenticatedMiddleware::class]));
-        $dispatcher->register('POST', new Route('/admin/login', [$authController, 'login'], [PasswordPolicyMiddleware::class]));
-        $dispatcher->register('POST', new Route('/admin/logout', [$authController, 'logout']));
+        $dispatcher->register('GET', new Route('/admin/dashboard', [DashboardController::class, 'dashboardPage'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/dashboard/data', [DashboardController::class, 'getDashboardStats'], [AdminAuthMiddleware::class]));
 
-        $dispatcher->register('GET', new Route('/404', [$authController, 'error404']));
-        $dispatcher->register('GET', new Route('/505', [$authController, 'error505']));
+        $dispatcher->register('GET', new Route('/admin/products', [ProductController::class, 'getProducts'], [AdminAuthMiddleware::class]));
 
-        $dispatcher->register('GET', new Route('/admin/dashboard', [$dashboardController, 'dashboardPage'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('GET', new Route('/admin/dashboard/data', [$dashboardController, 'getDashboardStats'], [AdminAuthMiddleware::class]));
-
-        $dispatcher->register('GET', new Route('/admin/products', [$productController, 'getProducts'], [AdminAuthMiddleware::class]));
-
-        $dispatcher->register('GET', new Route('/admin/categories', [$categoryController, 'getCategories'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('GET', new Route('/admin/categories-flat', [$categoryController, 'getFlatCategories'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('GET', new Route('/admin/categories/{id}', [$categoryController, 'getCategory'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('POST', new Route('/admin/categories/save', [$categoryController, 'saveCategory'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('POST', new Route('/admin/categories/delete', [$categoryController, 'deleteCategory'], [AdminAuthMiddleware::class]));
-        $dispatcher->register('GET', new Route('/admin/categories/{id}/descendants', [$categoryController, 'getDescendantIds'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories', [CategoryController::class, 'getCategories'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories-flat', [CategoryController::class, 'getFlatCategories'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/{id}', [CategoryController::class, 'getCategory'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/categories/save', [CategoryController::class, 'saveCategory'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/categories/delete', [CategoryController::class, 'deleteCategory'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/{id}/descendants', [CategoryController::class, 'getDescendantIds'], [AdminAuthMiddleware::class]));
     }
 }
