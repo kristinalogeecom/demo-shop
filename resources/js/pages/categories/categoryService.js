@@ -1,53 +1,54 @@
-import { get, post } from '../../ajax.js';
+import { HttpClient } from '../../ajax.js';
 
-export async function fetchCategories() {
-    return await get('/admin/categories');
-}
+export class CategoryService {
+    constructor() {
+        this.http = new HttpClient();
+    }
 
-export async function fetchCategory(categoryId) {
-    return await get(`/admin/categories/${categoryId}`);
-}
+    async fetchCategories() {
+        return await this.http.get('/admin/categories');
+    }
 
-export async function fetchFlatCategories() {
-    return await get('/admin/categories-flat');
-}
+    async fetchCategory(categoryId) {
+        return await this.http.get(`/admin/categories/${categoryId}`);
+    }
 
-export async function fetchDescendantCategoryIds(categoryId) {
-    return await get(`/admin/categories/${categoryId}/descendants`);
-}
+    async fetchFlatCategories() {
+        return await this.http.get('/admin/categories-flat');
+    }
 
-export async function saveCategory(data) {
-    try {
-        const response = await post('/admin/categories/save', data);
+    async fetchDescendantCategoryIds(categoryId) {
+        return await this.http.get(`/admin/categories/${categoryId}/descendants`);
+    }
 
-        if (response.errors) {
-            throw new Error(response.errors.join('\n'));
+    async saveCategory(data) {
+        try {
+            const response = await this.http.post('/admin/categories/save', data);
+
+            if (response.errors) {
+                throw new Error(response.errors.join('\n'));
+            }
+
+            if (!response.success) {
+                throw new Error(response.error || 'Save failed');
+            }
+
+            return response.category;
+        } catch (error) {
+            throw new Error(error?.message || 'Unexpected error while saving category.');
         }
+    }
 
-        if (!response.success) {
-            throw new Error(response.error || 'Save failed');
+    async deleteCategoryById(categoryId) {
+        try {
+            const response = await this.http.post('/admin/categories/delete', { id: categoryId });
+            if (!response.success) {
+                throw new Error(response.error || 'Delete failed');
+            }
+        } catch (error) {
+            console.error('Delete error: ', error);
+            alert('Request failed: ' + error.message);
+            throw error;
         }
-
-        return response.category;
-
-    } catch (error) {
-        if (error?.message) {
-            throw new Error(error.message);
-        }
-
-        throw new Error('Unexpected error while saving category.');
     }
 }
-
-export async function deleteCategoryById(categoryId) {
-    try {
-        const response = await post('/admin/categories/delete', { id: categoryId });
-        if (!response.success) throw new Error(response.error || 'Delete failed');
-    } catch (error) {
-        console.error('Delete error: ', error);
-        alert('Request failed: ' + error.message);
-        throw error;
-    }
-}
-
-

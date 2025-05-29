@@ -1,4 +1,5 @@
-import { fetchCategory } from './categoryService.js';
+import { CategoryService } from './categoryService.js';
+const categoryService = new CategoryService();
 
 export function renderCategoryTree(categories, level = 0) {
     return categories.map(category => {
@@ -20,7 +21,7 @@ export function renderCategoryTree(categories, level = 0) {
 }
 
 export async function renderCategoryDetails(categoryId) {
-    const category = await fetchCategory(categoryId);
+    const category = await categoryService.fetchCategory(categoryId);
     return `
         <h3>Selected Category</h3>
         <div class="detail-row">

@@ -1,8 +1,9 @@
-import { get } from '../ajax.js';
+import { HttpClient } from '../ajax.js';
+const http = new HttpClient();
 
 export async function loadDashboardStats() {
     try {
-        const data = await get('/admin/dashboard/data');
+        const data = await http.get('/admin/dashboard/data');
         const app = document.getElementById('app');
 
         document.getElementById('page-title').textContent = 'Admin Dashboard';

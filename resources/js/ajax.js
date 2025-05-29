@@ -1,11 +1,23 @@
-export function get(url) {
-    return fetch(url).then(res => res.json());
-}
+export class HttpClient {
+    async get(url) {
+        const response = await fetch(url);
+        return await response.json();
+    }
 
-export function post(url, data) {
-    return fetch(url, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    }).then(res => res.json());
+    async post(url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        return await response.json();
+    }
+
+    simplePost(url) {
+        return fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+        });
+    }
+
 }

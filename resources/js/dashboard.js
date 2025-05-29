@@ -1,8 +1,11 @@
-import {router} from './router.js';
+import { router } from './router.js';
+import { HttpClient } from './ajax.js';
 
-import {loadDashboardStats} from './pages/dashboardPage.js';
-import {loadProductsView} from './pages/productsPage.js';
-import {loadCategoriesView} from './pages/categories/categoriesPage.js';
+import { loadDashboardStats } from './pages/dashboardPage.js';
+import { loadProductsView } from './pages/productsPage.js';
+import { loadCategoriesView } from './pages/categories/categoriesPage.js';
+
+const http = new HttpClient();
 
 router.addRoute('dashboard', loadDashboardStats);
 router.addRoute('products', loadProductsView);
@@ -23,9 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirmed) return;
 
             try {
-                const response = await fetch('/admin/logout', {
-                    method: 'POST'
-                });
+                const response = await http.simplePost('/admin/logout');
 
                 if (response.redirected) {
                     window.location.href = response.url;

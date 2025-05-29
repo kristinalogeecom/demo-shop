@@ -1,7 +1,8 @@
-import { get } from '../ajax.js';
+import { HttpClient } from '../ajax.js';
+const http = new HttpClient();
 
 export async function loadProductsView() {
-    const products = await get('/admin/products');
+    const products = await http.get('/admin/products');
     const app = document.getElementById('app');
 
     document.getElementById('page-title').textContent = 'Product Management';
@@ -31,7 +32,7 @@ export async function loadProductsView() {
                             <td>${product.category}</td>
                             <td>${product.stock}</td>
                             <td class="action-cell">
-                                <button class="btn btn-sm" data-id="${product.id}">Edit</button>
+                                <button class="btn btn-sm edit" data-id="${product.id}">Edit</button>
                                 <button class="btn btn-sm btn-danger" data-id="${product.id}">Delete</button>
                             </td>
                         </tr>

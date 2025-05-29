@@ -5,18 +5,13 @@ import {
     renderErrorMessage,
     renderCategoryForm
 } from './categoryRenderer.js';
-import {
-    fetchCategories,
-    fetchCategory,
-    fetchFlatCategories,
-    saveCategory,
-    deleteCategoryById,
-    fetchDescendantCategoryIds
-} from './categoryService.js';
+
+import { CategoryService } from './categoryService.js';
+const categoryService = new CategoryService();
 
 export async function loadCategoriesView() {
     try {
-        const categories = await fetchCategories();
+        const categories = await categoryService.fetchCategories();
         const app = document.getElementById('app');
         document.getElementById('page-title').textContent = 'Product Categories';
 
@@ -51,8 +46,7 @@ function addCategoryTreeListeners() {
             document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
             e.currentTarget.classList.add('active');
             const panel = document.getElementById('categoryDetails');
-            panel.innerHTML = await renderCategoryDetails(categoryId, renderCategoryFormPanel, handleDeleteCategory);
-
+            panel.innerHTML = await renderCategoryDetails(categoryId);
             bindCategoryDetailActions(categoryId);
         });
     });
@@ -77,12 +71,12 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     disableUI();
     const panel = document.getElementById('categoryDetails');
     const selectedCategoryId = document.querySelector('.category-item.active')?.dataset.id || null;
-    const allCategories = await fetchFlatCategories();
+    const allCategories = await categoryService.fetchFlatCategories();
 
     let excludeIds = [];
 
     if (categoryId) {
-        excludeIds = await fetchDescendantCategoryIds(categoryId);
+        excludeIds = await categoryService.fetchDescendantCategoryIds(categoryId);
         excludeIds.push(parseInt(categoryId));
     }
 
@@ -100,7 +94,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     document.getElementById('cancelCategoryForm').addEventListener('click', async () => {
         enableUI();
         if (selectedCategoryId) {
-            panel.innerHTML = await renderCategoryDetails(selectedCategoryId, renderCategoryFormPanel, handleDeleteCategory);
+            panel.innerHTML = await renderCategoryDetails(selectedCategoryId);
             bindCategoryDetailActions(selectedCategoryId);
         } else {
             panel.innerHTML = renderNoSelectionMessage();
@@ -121,7 +115,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
         errorBox.textContent = '';
 
         try {
-            const saved = await saveCategory(data);
+            const saved = await categoryService.saveCategory(data);
             await refreshCategoriesTree(saved.id, saved.parent_id);
             enableUI();
         } catch (error) {
@@ -131,7 +125,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     });
 
     if (categoryId) {
-        const category = await fetchCategory(categoryId);
+        const category = await categoryService.fetchCategory(categoryId);
         document.getElementById('categoryName').value = category.name;
         document.getElementById('categoryCode').value = category.code || '';
         document.getElementById('categoryDescription').value = category.description || '';
@@ -145,7 +139,7 @@ async function handleDeleteCategory(categoryId) {
     const shouldClearPanel = selectedCategoryId === String(categoryId);
 
     if (!confirm('Are you sure you want to delete this category?')) return;
-    await deleteCategoryById(categoryId);
+    await categoryService.deleteCategoryById(categoryId);
     await refreshCategoriesTree(shouldClearPanel ? null : selectedCategoryId);
 
     if (shouldClearPanel) {
@@ -159,7 +153,7 @@ async function refreshCategoriesTree(selectedCategoryId = null, expandParentId =
         expandedIds.push(String(expandParentId));
     }
 
-    const categories = await fetchCategories();
+    const categories = await categoryService.fetchCategories();
     const treeEl = document.getElementById('categoriesTree');
     treeEl.innerHTML = renderCategoryTree(categories);
     addCategoryTreeListeners();
@@ -214,4 +208,3 @@ function bindCategoryDetailActions(categoryId) {
     document.getElementById('editCategory')?.addEventListener('click', () => renderCategoryFormPanel(categoryId));
     document.getElementById('deleteCategory')?.addEventListener('click', () => handleDeleteCategory(categoryId));
 }
-
