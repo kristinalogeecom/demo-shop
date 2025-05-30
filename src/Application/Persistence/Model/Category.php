@@ -49,6 +49,16 @@ class Category extends Model
     }
 
     /**
+     * Recursive loading of parent categories
+     *
+     * @return BelongsTo
+     */
+    public function parentRecursive(): BelongsTo
+    {
+        return $this->parent()->with('parentRecursive');
+    }
+
+    /**
      * Get the child categories
      *
      * @return HasMany
@@ -57,6 +67,25 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+
+    /**
+     * Getter for full Category path
+     *
+     * @return string
+     */
+    public function getFullPathAttribute(): string
+    {
+        $names = [$this->name];
+        $current = $this->parent;
+
+        while ($current) {
+            array_unshift($names, $current->name);
+            $current = $current->parent;
+        }
+
+        return implode(' > ', $names);
+    }
+
 
     /**
      * Get all products in this category

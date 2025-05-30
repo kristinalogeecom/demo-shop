@@ -2,6 +2,9 @@
 
 namespace DemoShop\Application\Presentation\Controller;
 
+use DemoShop\Application\BusinessLogic\ServiceInterface\ProductServiceInterface;
+use DemoShop\Infrastructure\Container\ServiceRegistry;
+use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\JsonResponse;
@@ -26,9 +29,19 @@ class ProductController
      */
     public function getProducts(Request $request): Response
     {
-        return new JsonResponse([
-            ['id' => 1, 'name' => 'Product 1', 'price' => 10.99],
-            ['id' => 2, 'name' => 'Product 2', 'price' => 20.50]
-        ]);
+        try {
+            $products = $this->getProductService()->getAllProducts();
+            return new JsonResponse($products);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * @throws ServiceNotFoundException
+     */
+    private function getProductService(): ProductServiceInterface
+    {
+        return ServiceRegistry::get(ProductServiceInterface::class);
     }
 }

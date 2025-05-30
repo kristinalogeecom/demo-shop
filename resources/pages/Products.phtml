@@ -1,20 +1,57 @@
-<div class="action-buttons">
-    <button class="btn btn-primary" id="addProduct">Add Product</button>
+<div class="action-buttons mb-4 flex gap-2">
+    <button class="btn btn-primary" id="addProduct">Add new product</button>
+    <button class="btn btn-danger" id="deleteSelected">Delete selected</button>
+    <button class="btn btn-success" id="enableSelected">Enable selected</button>
+    <button class="btn btn-secondary" id="disableSelected">Disable selected</button>
+    <button class="btn ml-auto" id="filterBtn">Filter</button>
 </div>
-<div class="data-table-container">
-    <table class="data-table">
+
+<div class="data-table-container overflow-auto">
+    <table class="data-table w-full border text-sm">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>Title</th>
+            <th>SKU</th>
+            <th>Brand</th>
             <th>Category</th>
-            <th>Stock</th>
+            <th>Short description</th>
+            <th>Price</th>
+            <th>Enable</th>
             <th>Actions</th>
         </tr>
         </thead>
         <tbody id="productsTableBody">
-        <!-- JS will insert rows here -->
+        <!-- Filling from JS -->
         </tbody>
     </table>
 </div>
+
+<div class="pagination flex justify-center mt-4 gap-2">
+    <button class="btn" id="firstPage">&laquo;&laquo;</button>
+    <button class="btn" id="prevPage">&lt;</button>
+    <span id="pageInfo">1 / 7</span>
+    <button class="btn" id="nextPage">&gt;</button>
+    <button class="btn" id="lastPage">&raquo;&raquo;</button>
+</div>
+
+<div class="modal hidden" id="productModal">
+    <form id="productForm" enctype="multipart/form-data">
+        <input type="hidden" name="id" id="productId">
+
+        <label>Title:<input type="text" name="title" id="productName" required></label>
+        <label>SKU:<input type="text" name="sku" id="productSku" required></label>
+        <label>Brand:<input type="text" name="brand" id="productBrand"></label>
+        <label>Category:<input type="text" name="category" id="productCategory"></label>
+        <label>Short Description:<textarea name="short_description" id="shortDescription"></textarea></label>
+        <label>Price:<input type="number" name="price" id="productPrice" required step="0.01"></label>
+        <label>Image:<input type="file" name="image" id="productImage"></label>
+        <label><input type="checkbox" name="enabled" id="productEnabled"> Enabled</label>
+        <label><input type="checkbox" name="featured" id="productFeatured"> Featured</label>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" id="cancelProduct">Cancel</button>
+    </form>
+</div>
+
+<link rel="stylesheet" href="/resources/css/products.css">

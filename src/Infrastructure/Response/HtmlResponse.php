@@ -54,7 +54,7 @@ class HtmlResponse extends Response
         $templatePath = __DIR__ . '/../../../resources/pages/' . $this->templateOrPath . '.phtml';
 
         if (!file_exists($templatePath)) {
-            echo "Template not found.";
+            echo "Template not found." . $templatePath;
             return;
         }
 

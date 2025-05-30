@@ -7,18 +7,22 @@ use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryI
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\DashboardRepositoryInterface;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\ProductRepositoryInterface;
 use DemoShop\Application\BusinessLogic\Service\AuthenticationService;
 use DemoShop\Application\BusinessLogic\Service\CategoryService;
 use DemoShop\Application\BusinessLogic\Service\DashboardService;
+use DemoShop\Application\BusinessLogic\Service\ProductService;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\DashboardServiceInterface;
+use DemoShop\Application\BusinessLogic\ServiceInterface\ProductServiceInterface;
 use DemoShop\Application\Configuration\Routes\WebRouteRegistrar;
 use DemoShop\Application\Persistence\Encryption\Encrypter;
 use DemoShop\Application\Persistence\Repository\AdminTokenRepository;
 use DemoShop\Application\Persistence\Repository\AuthenticationRepository;
 use DemoShop\Application\Persistence\Repository\CategoryRepository;
 use DemoShop\Application\Persistence\Repository\DashboardRepository;
+use DemoShop\Application\Persistence\Repository\ProductRepository;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Exception\InvalidArgumentException;
 use DemoShop\Infrastructure\Exception\NotFoundException;
@@ -126,11 +130,13 @@ class App
         ServiceRegistry::set(AdminTokenRepositoryInterface::class, new AdminTokenRepository());
         ServiceRegistry::set(DashboardRepositoryInterface::class, new DashboardRepository());
         ServiceRegistry::set(CategoryRepositoryInterface::class, new CategoryRepository());
+        ServiceRegistry::set(ProductRepositoryInterface::class, new ProductRepository());
 
         // Services
         ServiceRegistry::set(AuthenticationServiceInterface::class, new AuthenticationService());
         ServiceRegistry::set(DashboardServiceInterface::class, new DashboardService());
         ServiceRegistry::set(CategoryServiceInterface::class, new CategoryService());
+        ServiceRegistry::set(ProductServiceInterface::class, new ProductService());
     }
 
 
