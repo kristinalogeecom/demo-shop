@@ -2,39 +2,64 @@ class Router {
     constructor() {
         this.routes = {};
         this.initEventListeners();
-        this.navigateTo(location.hash.slice(1) || 'dashboard');
 
+        // Odloženo pokretanje početne rute
+        setTimeout(() => {
+            this.navigateTo(location.hash.slice(1) || 'dashboard');
+        }, 0);
     }
 
     addRoute(route, callback) {
         this.routes[route] = callback;
     }
 
-    navigateTo(route) {
+    async navigateTo(route) {
         if (this.routes[route]) {
             history.pushState({}, '', `#${route}`);
 
-            // Update active menu item
-            document.querySelectorAll('[data-route]').forEach(link => {
-                link.classList.toggle('active', link.getAttribute('data-route') === route);
-            });
+            this.updateActiveRoute(route);
 
-            this.routes[route]();
+            try {
+                await this.routes[route]();
+            } catch (error) {
+                console.error(`Error while navigating to "${route}":`, error);
+                const app = document.getElementById('app');
+                if (app) {
+                    app.innerHTML = `
+                        <div class="error">
+                            <h2>Routing Error</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+        } else {
+            console.warn(`No route registered for "${route}"`);
         }
     }
 
-    initEventListeners() {
-        // Handle menu clicks
+    updateActiveRoute(activeRoute) {
         document.querySelectorAll('[data-route]').forEach(link => {
-            link.addEventListener('click', (e) => {
+            link.classList.toggle('active', link.getAttribute('data-route') === activeRoute);
+        });
+    }
+
+    initEventListeners() {
+        // Klik na meni
+        document.querySelectorAll('[data-route]').forEach(link => {
+            link.addEventListener('click', async (e) => {
                 e.preventDefault();
-                this.navigateTo(e.target.getAttribute('data-route'));
+                const route = e.target.closest('[data-route]')?.getAttribute('data-route');
+                if (route) {
+                    await this.navigateTo(route);
+                }
             });
         });
 
-        // Handle browser back/forward
+        // Back/forward dugmad u browseru
         window.addEventListener('popstate', () => {
-            this.navigateTo(location.hash.slice(1));
+            const route = location.hash.slice(1);
+            this.navigateTo(route);
         });
     }
 }

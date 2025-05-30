@@ -2,42 +2,48 @@ import { HttpClient } from '../ajax.js';
 const http = new HttpClient();
 
 export async function loadDashboardStats() {
+    const app = document.getElementById('app');
+    document.getElementById('page-title').textContent = 'Admin Dashboard';
+
+    app.innerHTML = `<div class="loading">Loading dashboard...</div>`;
+
     try {
-        const data = await http.get('/admin/dashboard/data');
-        const app = document.getElementById('app');
+        const [html, data] = await Promise.all([
+            fetch('/admin/dashboard/view').then(res => {
+                if (!res.ok) throw new Error('Failed to load dashboard HTML');
+                return res.text();
+            }),
+            http.get('/admin/dashboard/data')
+        ]);
 
-        document.getElementById('page-title').textContent = 'Admin Dashboard';
+        app.innerHTML = html;
 
-        app.innerHTML = `
-            <div class="stats-container">
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <label>Products count</label>
-                        <input type="text" value="${data.productsCount}" readonly>
+        requestAnimationFrame(() => {
+            try {
+                const set = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = value;
+                };
+
+                set('productsCount', data.productsCount);
+                set('categoriesCount', data.categoriesCount);
+                set('homePageViews', data.homePageViews);
+                set('mostViewedProduct', data.mostViewedProduct);
+                set('mostViewedProductViews', data.mostViewedProductViews);
+            } catch (renderErr) {
+                console.error(renderErr);
+                app.innerHTML = `
+                    <div class="error">
+                        <h2>Render Error</h2>
+                        <p>${renderErr.message}</p>
+                        <button class="btn btn-primary" onclick="window.location.reload()">Retry</button>
                     </div>
-                    <div class="stat-item">
-                        <label>Categories count</label>
-                        <input type="text" value="${data.categoriesCount}" readonly>
-                    </div>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <label>Home page opening count</label>
-                        <input type="text" value="${data.homePageViews}" readonly>
-                    </div>
-                    <div class="stat-item">
-                        <label>Most often viewed product</label>
-                        <input type="text" value="${data.mostViewedProduct}" readonly>
-                    </div>
-                    <div class="stat-item">
-                        <label>Number of views</label>
-                        <input type="text" value="${data.mostViewedProductViews}" readonly>
-                    </div>
-                </div>
-            </div>
-        `;
+                `;
+            }
+        });
+
     } catch (error) {
-        const app = document.getElementById('app');
+        console.error(error);
         app.innerHTML = `
             <div class="error">
                 <h2>Loading Error</h2>

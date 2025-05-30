@@ -3,6 +3,7 @@
 namespace DemoShop\Application\Presentation\Controller;
 
 use DemoShop\Infrastructure\Http\Request;
+use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\JsonResponse;
 use DemoShop\Infrastructure\Response\Response;
 
@@ -11,6 +12,11 @@ use DemoShop\Infrastructure\Response\Response;
  */
 class ProductController
 {
+    public function getProductsHtml(): HtmlResponse
+    {
+        return new HtmlResponse('Products');
+    }
+
     /**
      * Returns a list of products.
      * (Currently hardcoded — intended to be replaced with dynamic data.)

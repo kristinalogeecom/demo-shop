@@ -34,10 +34,13 @@ class WebRouteRegistrar
         $dispatcher->register('POST', new Route('/admin/login', [AuthenticationController::class, 'login'], [PasswordPolicyMiddleware::class]));
         $dispatcher->register('POST', new Route('/admin/logout', [AuthenticationController::class, 'logout']));
 
-        $dispatcher->register('GET', new Route('/admin/dashboard', [DashboardController::class, 'dashboardPage'], [AdminAuthMiddleware::class]));
+
+        $dispatcher->register('GET', new Route('/admin/dashboard', [DashboardController::class, 'layoutPage'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/dashboard/view', [DashboardController::class, 'dashboardPage'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/dashboard/data', [DashboardController::class, 'getDashboardStats'], [AdminAuthMiddleware::class]));
 
-        $dispatcher->register('GET', new Route('/admin/products', [ProductController::class, 'getProducts'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/products', [ProductController::class, 'getProductsHtml'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/products/data', [ProductController::class, 'getProducts'], [AdminAuthMiddleware::class]));
 
         $dispatcher->register('GET', new Route('/admin/categories', [CategoryController::class, 'getCategories'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/categories-flat', [CategoryController::class, 'getFlatCategories'], [AdminAuthMiddleware::class]));

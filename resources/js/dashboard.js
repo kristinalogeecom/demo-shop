@@ -10,14 +10,20 @@ const http = new HttpClient();
 router.addRoute('dashboard', loadDashboardStats);
 router.addRoute('products', loadProductsView);
 router.addRoute('categories', loadCategoriesView);
+document.addEventListener('DOMContentLoaded', async () => {
+    await initApp();
+});
 
-document.addEventListener('DOMContentLoaded', () => {
+async function initApp() {
     const currentRoute = location.hash.slice(1) || 'dashboard';
 
+    // Set active class for current menu item
     document.querySelector(`[data-route="${currentRoute}"]`)?.classList.add('active');
-    router.navigateTo(currentRoute);
 
-    // Logout handler
+    // Pokreni rutu
+    await router.navigateTo(currentRoute);
+
+    // Attach logout handler (nakon što DOM postoji!)
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) {
         logoutButton.addEventListener('click', async (e) => {
@@ -39,4 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+}
+
+function setActiveRoute(route) {
+    document.querySelectorAll('[data-route]').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-route') === route);
+    });
+}

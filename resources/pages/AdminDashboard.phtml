@@ -1,30 +1,26 @@
-<link rel="stylesheet" href="../../resources/css/dashboard.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<div class="dashboard">
-    <div class="header-banner">
-        <div class="content-container">
-            <h1 id="page-title"></h1>
+<div class="stats-container">
+    <div class="stats-row">
+        <div class="stat-item">
+            <label>Products count</label>
+            <input type="text" id="productsCount" readonly>
+        </div>
+        <div class="stat-item">
+            <label>Categories count</label>
+            <input type="text" id="categoriesCount" readonly>
         </div>
     </div>
-
-    <!-- Side Menu -->
-    <aside class="sidebar">
-        <ul>
-            <li><a href="#" data-route="dashboard" class="active">Dashboard</a></li>
-            <li><a href="#" data-route="products">Products</a></li>
-            <li><a href="#" data-route="categories">Product Categories</a></li>
-            <li><a href="#" id="logoutButton" data-route="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="content-container" id="app">
-            <!-- Content will be loaded here by JavaScript -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <label>Home page opening count</label>
+            <input type="text" id="homePageViews" readonly>
         </div>
-    </main>
+        <div class="stat-item">
+            <label>Most often viewed product</label>
+            <input type="text" id="mostViewedProduct" readonly>
+        </div>
+        <div class="stat-item">
+            <label>Number of views</label>
+            <input type="text" id="mostViewedProductViews" readonly>
+        </div>
+    </div>
 </div>
-
-<script type="module" src="../../resources/js/router.js"></script>
-<script type="module" src="../../resources/js/dashboard.js"></script>

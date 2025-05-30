@@ -15,6 +15,11 @@ use DemoShop\Infrastructure\Response\Response;
  */
 class DashboardController
 {
+    public function layoutPage(): HtmlResponse
+    {
+        return new HtmlResponse('AdminIndex');
+    }
+
     /**
      * @param Request $request
      * @return Response
