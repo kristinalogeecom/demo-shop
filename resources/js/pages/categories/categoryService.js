@@ -18,8 +18,10 @@ export class CategoryService {
     }
 
     async fetchDescendantCategoryIds(categoryId) {
-        return await this.http.get(`/admin/categories/${categoryId}/descendants`);
+        const data = await this.http.get(`/admin/categories/${categoryId}/descendants`);
+        return Array.isArray(data) ? data.map(id => Number(id)) : [];
     }
+
 
     async saveCategory(data) {
         try {

@@ -8,34 +8,32 @@ import {
 
 import { CategoryService } from './categoryService.js';
 const categoryService = new CategoryService();
-
 export async function loadCategoriesView() {
-    try {
-        const categories = await categoryService.fetchCategories();
-        const app = document.getElementById('app');
-        document.getElementById('page-title').textContent = 'Product Categories';
+    const app = document.getElementById('app');
+    document.getElementById('page-title').textContent = 'Product Categories';
 
-        app.innerHTML = `
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="addRootCategory">
-                    <i class="fas fa-plus"></i> Add Root Category
-                </button>
-            </div>
-            <div class="categories-container">
-                <div class="categories-tree" id="categoriesTree">
-                    ${renderCategoryTree(categories)}
-                </div>
-                <div class="category-details" id="categoryDetails">
-                    ${renderNoSelectionMessage()}
-                </div>
-            </div>
-        `;
+    app.innerHTML = `<div class="loading">Loading categories...</div>`;
+
+    try {
+        const html = await fetch('/admin/categories/view').then(res => {
+            if (!res.ok) throw new Error('Failed to load categories HTML');
+            return res.text();
+        });
+
+        app.innerHTML = html;
+
+        const categories = await categoryService.fetchCategories();
+        const treeEl = document.getElementById('categoriesTree');
+        const detailsEl = document.getElementById('categoryDetails');
+
+        treeEl.innerHTML = renderCategoryTree(categories);
+        detailsEl.innerHTML = await renderNoSelectionMessage();
 
         addCategoryTreeListeners();
         document.getElementById('addRootCategory').addEventListener('click', () => renderCategoryFormPanel());
 
     } catch (error) {
-        document.getElementById('app').innerHTML = renderErrorMessage(error.message);
+        app.innerHTML = renderErrorMessage(error.message);
     }
 }
 
@@ -66,7 +64,6 @@ function addCategoryTreeListeners() {
         });
     });
 }
-
 async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     disableUI();
     const panel = document.getElementById('categoryDetails');
@@ -77,16 +74,21 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
 
     if (categoryId) {
         excludeIds = await categoryService.fetchDescendantCategoryIds(categoryId);
-        excludeIds.push(parseInt(categoryId));
+        excludeIds.push(Number(categoryId));
     }
 
-    const filteredCategories = allCategories.filter(cat => !excludeIds.includes(cat.id));
+    console.log("All categories:", allCategories);
+    console.log("Exclude IDs:", excludeIds);
 
-    panel.innerHTML = renderCategoryForm({ categoryId, parentId, allCategories: filteredCategories });
+    const excludeSet = new Set(excludeIds.map(Number));
+    const filteredCategories = allCategories.filter(cat => !excludeSet.has(Number(cat.id)));
+
+    panel.innerHTML = await renderCategoryForm({ categoryId, parentId });
 
     const parentSelect = document.getElementById('parentSelect');
-    if (!categoryId && !parentId) parentSelect.disabled = true;
-    if (!categoryId && parentId) {
+    if (!categoryId && !parentId) {
+        parentSelect.disabled = true;
+    } else if (!categoryId && parentId) {
         parentSelect.disabled = true;
         parentSelect.value = parentId;
     }
@@ -97,7 +99,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
             panel.innerHTML = await renderCategoryDetails(selectedCategoryId);
             bindCategoryDetailActions(selectedCategoryId);
         } else {
-            panel.innerHTML = renderNoSelectionMessage();
+            panel.innerHTML = await renderNoSelectionMessage();
         }
     });
 
@@ -134,6 +136,7 @@ async function renderCategoryFormPanel(categoryId = null, parentId = null) {
     }
 }
 
+
 async function handleDeleteCategory(categoryId) {
     const selectedCategoryId = document.querySelector('.category-item.active')?.dataset.id || null;
     const shouldClearPanel = selectedCategoryId === String(categoryId);
@@ -143,7 +146,7 @@ async function handleDeleteCategory(categoryId) {
     await refreshCategoriesTree(shouldClearPanel ? null : selectedCategoryId);
 
     if (shouldClearPanel) {
-        document.getElementById('categoryDetails').innerHTML = renderNoSelectionMessage();
+        document.getElementById('categoryDetails').innerHTML = await renderNoSelectionMessage();
     }
 }
 

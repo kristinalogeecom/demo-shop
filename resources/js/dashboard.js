@@ -46,9 +46,3 @@ async function initApp() {
         });
     }
 }
-
-function setActiveRoute(route) {
-    document.querySelectorAll('[data-route]').forEach(link => {
-        link.classList.toggle('active', link.getAttribute('data-route') === route);
-    });
-}

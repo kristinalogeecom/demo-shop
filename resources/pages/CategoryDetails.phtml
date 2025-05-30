@@ -1,0 +1,22 @@
+<h3>Selected Category</h3>
+<div class="detail-row">
+    <span class="detail-label">Title:</span>
+    <div class="detail-value"><?= htmlspecialchars($category['name']) ?></div>
+</div>
+<div class="detail-row">
+    <span class="detail-label">Parent category:</span>
+    <div class="detail-value"><?= htmlspecialchars($category['parent']['name'] ?? 'Root Category') ?></div>
+</div>
+<div class="detail-row">
+    <span class="detail-label">Code:</span>
+    <div class="detail-value"><?= htmlspecialchars($category['code'] ?? 'N/A') ?></div>
+</div>
+<div class="detail-row">
+    <span class="detail-label">Description:</span>
+    <div class="detail-value"><?= htmlspecialchars($category['description'] ?? 'No description provided') ?></div>
+</div>
+<div class="category-actions">
+    <button class="btn btn-primary" id="addSubcategory">Add Subcategory</button>
+    <button class="btn" id="editCategory">Edit</button>
+    <button class="btn btn-danger" id="deleteCategory">Delete</button>
+</div>

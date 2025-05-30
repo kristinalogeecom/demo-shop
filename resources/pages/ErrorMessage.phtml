@@ -1,0 +1,7 @@
+<div class="error">
+    <h2>Loading Error</h2>
+    <p><?= htmlspecialchars($message ?? 'An error occurred.') ?></p>
+    <button class="btn btn-primary" onclick="window.location.reload()">
+        <i class="fas fa-sync-alt"></i> Retry
+    </button>
+</div>

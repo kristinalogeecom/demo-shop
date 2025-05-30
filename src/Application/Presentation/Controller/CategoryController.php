@@ -11,6 +11,7 @@ use DemoShop\Infrastructure\Exception\ServiceNotFoundException;
 use DemoShop\Infrastructure\Exception\ValidationException;
 use DemoShop\Infrastructure\Http\Request;
 use DemoShop\Infrastructure\Response\JsonResponse;
+use DemoShop\Infrastructure\Response\HtmlResponse;
 use DemoShop\Infrastructure\Response\Response;
 
 
@@ -19,6 +20,16 @@ use DemoShop\Infrastructure\Response\Response;
  */
 class CategoryController
 {
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function categoriesPage(Request $request): Response
+    {
+        return new HtmlResponse('Categories');
+    }
+
     /**
      * Retrieves all categories in a tree structure.
      *
@@ -165,7 +176,6 @@ class CategoryController
         }
     }
 
-
     /**
      * Retrieves the category service instance from the service container.
      *
@@ -176,6 +186,68 @@ class CategoryController
     private function getCategoryService(): CategoryServiceInterface
     {
         return ServiceRegistry::get(CategoryServiceInterface::class);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws ServiceNotFoundException
+     */
+    public function renderCategoryDetails(Request $request): Response
+    {
+        $id = (int)$request->param('id');
+
+        if (!$id) {
+            return new JsonResponse(['error' => 'Missing ID'], 400);
+        }
+
+        try {
+            $category = $this->getCategoryService()->getCategoryById($id);
+            return new HtmlResponse('CategoryDetails', [
+                'category' => $category
+            ]);
+        } catch (NotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    /**
+     * @throws ServiceNotFoundException
+     */
+    public function renderCategoryForm(Request $request): Response
+    {
+        $categoryId = $request->query('categoryId');
+        $parentId = $request->query('parentId');
+
+        $allCategories = $this->getCategoryService()->getFlatCategories();
+        $excludeIds = [];
+
+        if ($categoryId) {
+            $descendantIds = $this->getCategoryService()->getDescendantIds((int)$categoryId);
+            $excludeIds = array_map('intval', $descendantIds);
+            $excludeIds[] = (int)$categoryId;
+        }
+
+        $filteredCategories = array_filter($allCategories, function ($cat) use ($excludeIds) {
+            return !in_array((int)$cat['id'], $excludeIds, true);
+        });
+
+        $category = null;
+        if ($categoryId) {
+            $category = $this->getCategoryService()->getCategoryById((int)$categoryId);
+        }
+
+        return new HtmlResponse('CategoryForm', [
+            'categoryId'     => $categoryId,
+            'parentId'       => $parentId,
+            'category'       => $category ?? [],
+            'allCategories'  => array_values($filteredCategories),
+        ]);
+    }
+
+    public function renderEmptyPanel(Request $request): Response
+    {
+        return new HtmlResponse('NoSelection');
     }
 
 

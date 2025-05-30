@@ -43,10 +43,15 @@ class WebRouteRegistrar
         $dispatcher->register('GET', new Route('/admin/products/data', [ProductController::class, 'getProducts'], [AdminAuthMiddleware::class]));
 
         $dispatcher->register('GET', new Route('/admin/categories', [CategoryController::class, 'getCategories'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/view', [CategoryController::class, 'categoriesPage'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/categories-flat', [CategoryController::class, 'getFlatCategories'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/categories/{id}', [CategoryController::class, 'getCategory'], [AdminAuthMiddleware::class]));
         $dispatcher->register('POST', new Route('/admin/categories/save', [CategoryController::class, 'saveCategory'], [AdminAuthMiddleware::class]));
         $dispatcher->register('POST', new Route('/admin/categories/delete', [CategoryController::class, 'deleteCategory'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/view/details/{id}', [CategoryController::class, 'renderCategoryDetails'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/categories/{id}/descendants', [CategoryController::class, 'getDescendantIds'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/view/form', [CategoryController::class, 'renderCategoryForm'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/categories/view/empty', [CategoryController::class, 'renderEmptyPanel'], [AdminAuthMiddleware::class]));
+
     }
 }

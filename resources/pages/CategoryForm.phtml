@@ -1,0 +1,34 @@
+<h3><?= $categoryId ? 'Edit Category' : ($parentId ? 'Add Subcategory' : 'Add Root Category') ?></h3>
+<form id="inlineCategoryForm">
+    <input type="hidden" id="categoryId" value="<?= $categoryId ?>">
+    <div class="detail-row">
+        <label class="detail-label" for="categoryName">Title:</label>
+        <input class="detail-input" type="text" id="categoryName" value="<?= htmlspecialchars($category['name'] ?? '') ?>">
+    </div>
+    <div class="detail-row">
+        <label class="detail-label" for="parentSelect">Parent category:</label>
+        <select class="detail-input" id="parentSelect" <?= !$categoryId && !$parentId ? 'disabled' : '' ?>>
+            <option value="">Root Category</option>
+            <?php foreach ($allCategories as $cat): ?>
+                <option value="<?= $cat['id'] ?>" <?= ($cat['id'] == ($category['parent_id'] ?? $parentId)) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($cat['name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="detail-row">
+        <label class="detail-label" for="categoryCode">Code:</label>
+        <input class="detail-input" type="text" id="categoryCode" value="<?= htmlspecialchars($category['code'] ?? '') ?>">
+    </div>
+    <div class="detail-row">
+        <label class="detail-label" for="categoryDescription">Description:</label>
+        <textarea class="detail-input" id="categoryDescription" rows="4"><?= htmlspecialchars($category['description'] ?? '') ?></textarea>
+    </div>
+    <div id="formErrorMessage" class="form-error-message" style="color:red; margin-top: 10px;"></div>
+    <div class="category-actions">
+        <button type="submit" class="btn btn-primary">
+            <?= $categoryId ? 'Update' : 'Save' ?>
+        </button>
+        <button type="button" class="btn btn-cancel" id="cancelCategoryForm">Cancel</button>
+    </div>
+</form>
