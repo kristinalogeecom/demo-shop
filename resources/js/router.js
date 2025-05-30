@@ -3,7 +3,6 @@ class Router {
         this.routes = {};
         this.initEventListeners();
 
-        // Odloženo pokretanje početne rute
         setTimeout(() => {
             this.navigateTo(location.hash.slice(1) || 'dashboard');
         }, 0);
@@ -45,7 +44,6 @@ class Router {
     }
 
     initEventListeners() {
-        // Klik na meni
         document.querySelectorAll('[data-route]').forEach(link => {
             link.addEventListener('click', async (e) => {
                 e.preventDefault();
@@ -56,7 +54,6 @@ class Router {
             });
         });
 
-        // Back/forward dugmad u browseru
         window.addEventListener('popstate', () => {
             const route = location.hash.slice(1);
             this.navigateTo(route);
