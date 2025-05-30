@@ -15,12 +15,10 @@ export async function loadCategoriesView() {
     app.innerHTML = `<div class="loading">Loading categories...</div>`;
 
     try {
-        const html = await fetch('/admin/categories/view').then(res => {
+        app.innerHTML = await fetch('/admin/categories/view').then(res => {
             if (!res.ok) throw new Error('Failed to load categories HTML');
             return res.text();
         });
-
-        app.innerHTML = html;
 
         const categories = await categoryService.fetchCategories();
         const treeEl = document.getElementById('categoriesTree');

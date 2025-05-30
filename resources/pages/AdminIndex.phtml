@@ -7,8 +7,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+
+<div class="header-banner">
+    <div class="content-container">
+        <h1 id="page-title">Admin Panel</h1>
+    </div>
+</div>
+
 <div class="dashboard">
-    <!-- Side Menu -->
+    <!-- Sidebar -->
     <aside class="sidebar">
         <ul>
             <li><a href="#" data-route="dashboard" class="active">Dashboard</a></li>
@@ -20,18 +27,15 @@
         </ul>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="content-container">
-            <h1 id="page-title"></h1>
             <div id="app">
-                <!-- JS će ovde dinamički ubacivati sadržaj -->
+                <!-- JS  -->
             </div>
         </div>
     </main>
 </div>
 
-<!-- Router + JS logika -->
 <script type="module" src="/resources/js/router.js"></script>
 <script type="module" src="/resources/js/dashboard.js"></script>
 </body>
