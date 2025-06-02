@@ -2,7 +2,7 @@
 
 namespace DemoShop\Application\Presentation\Controller;
 
-use DemoShop\Application\BusinessLogic\Model\CategoryModel;
+use DemoShop\Application\BusinessLogic\DTO\CategoryModel;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Exception\Exception;
@@ -177,20 +177,12 @@ class CategoryController
     }
 
     /**
-     * Retrieves the category service instance from the service container.
+     * Renders the category details HTML panel.
      *
-     * @return CategoryServiceInterface
-     *
-     * @throws ServiceNotFoundException
-     */
-    private function getCategoryService(): CategoryServiceInterface
-    {
-        return ServiceRegistry::get(CategoryServiceInterface::class);
-    }
-
-    /**
      * @param Request $request
-     * @return Response
+     *
+     * @return Response HTML response with the category data.
+     *
      * @throws ServiceNotFoundException
      */
     public function renderCategoryDetails(Request $request): Response
@@ -212,6 +204,12 @@ class CategoryController
     }
 
     /**
+     * Renders the category form view for editing or creating a category.
+     *
+     * @param Request $request
+     *
+     * @return Response HTML response with the category form.
+     *
      * @throws ServiceNotFoundException
      */
     public function renderCategoryForm(Request $request): Response
@@ -245,9 +243,27 @@ class CategoryController
         ]);
     }
 
+
+    /**
+     * Renders an empty panel placeholder when no category is selected.
+     *
+     * @param Request $request
+     *
+     * @return Response HTML response with the empty state panel.
+     */
     public function renderEmptyPanel(Request $request): Response
     {
         return new HtmlResponse('NoSelection');
+    }
+
+    /**
+     * @return CategoryServiceInterface
+     *
+     * @throws ServiceNotFoundException
+     */
+    private function getCategoryService(): CategoryServiceInterface
+    {
+        return ServiceRegistry::get(CategoryServiceInterface::class);
     }
 
 

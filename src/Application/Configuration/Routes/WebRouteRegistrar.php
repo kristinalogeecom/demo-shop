@@ -41,6 +41,12 @@ class WebRouteRegistrar
 
         $dispatcher->register('GET', new Route('/admin/products', [ProductController::class, 'getProductsHtml'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/products/data', [ProductController::class, 'getProducts'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('GET', new Route('/admin/products/view/form', [ProductController::class, 'renderProductForm'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/products/save', [ProductController::class, 'saveProduct'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('DELETE', new Route('/admin/products/delete/{id}', [ProductController::class, 'deleteProduct'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/products/delete-batch', [ProductController::class, 'deleteBatch'], [AdminAuthMiddleware::class]));
+        $dispatcher->register('POST', new Route('/admin/products/update-enabled', [ProductController::class, 'updateEnabledStatus'], [AdminAuthMiddleware::class]));
+
 
         $dispatcher->register('GET', new Route('/admin/categories', [CategoryController::class, 'getCategories'], [AdminAuthMiddleware::class]));
         $dispatcher->register('GET', new Route('/admin/categories/view', [CategoryController::class, 'categoriesPage'], [AdminAuthMiddleware::class]));

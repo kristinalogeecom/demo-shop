@@ -1,7 +1,7 @@
 <div class="action-buttons mb-4 flex gap-2">
     <button class="btn btn-primary" id="addProduct">Add new product</button>
     <button class="btn btn-danger" id="deleteSelected">Delete selected</button>
-    <button class="btn btn-success" id="enableSelected">Enable selected</button>
+    <button class="btn btn-secondary" id="enableSelected">Enable selected</button>
     <button class="btn btn-secondary" id="disableSelected">Disable selected</button>
     <button class="btn ml-auto" id="filterBtn">Filter</button>
 </div>
@@ -42,7 +42,7 @@
         <label>Title:<input type="text" name="title" id="productName" required></label>
         <label>SKU:<input type="text" name="sku" id="productSku" required></label>
         <label>Brand:<input type="text" name="brand" id="productBrand"></label>
-        <label>Category:<input type="text" name="category" id="productCategory"></label>
+        <label>Category: <select name="category" id="productCategory"></select></label>
         <label>Short Description:<textarea name="short_description" id="shortDescription"></textarea></label>
         <label>Price:<input type="number" name="price" id="productPrice" required step="0.01"></label>
         <label>Image:<input type="file" name="image" id="productImage"></label>

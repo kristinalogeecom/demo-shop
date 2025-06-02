@@ -1,0 +1,69 @@
+<div class="product-form-wrapper p-4 bg-white rounded shadow">
+    <h2 class="text-xl font-semibold mb-4">Product Details</h2>
+    <form id="productForm" enctype="multipart/form-data">
+        <div class="left-column">
+            <input type="hidden" name="id" id="productId">
+
+            <div class="form-group">
+                <label for="productSku">SKU</label>
+                <input type="text" name="sku" id="productSku">
+            </div>
+
+            <div class="form-group">
+                <label for="productTitle">Title</label>
+                <input type="text" name="title" id="productTitle">
+            </div>
+
+            <div class="form-group">
+                <label for="productBrand">Brand</label>
+                <input type="text" name="brand" id="productBrand">
+            </div>
+
+            <div class="form-group">
+                <label for="productCategory">Category</label>
+                <select name="category" id="productCategory"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="productPrice">Price</label>
+                <input type="number" name="price" id="productPrice" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="shortDescription">Short description</label>
+                <textarea name="short_description" id="shortDescription"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="productDescription">Description</label>
+                <textarea name="long_description" id="productDescription"></textarea>
+            </div>
+
+            <div class="checkbox-row">
+                <label><input type="checkbox" name="enabled" id="productEnabled"> Enabled in shop</label>
+                <label><input type="checkbox" name="featured" id="productFeatured"> Featured</label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" id="cancelProduct">Cancel</button>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <label for="productImage" class="mb-2">Image:</label>
+            <div class="image-preview" id="imagePreviewWrapper">
+                <img id="imagePreview" src="" alt="Preview" style="display: none;">
+                <span id="imagePreviewText" class="text-gray-400">Image preview</span>
+            </div>
+            <input type="file" name="image" id="productImage" accept="image/*" class="mt-2">
+        </div>
+    </form>
+
+    <div id="formErrorMessage" class="form-error-message" style="color:red; margin-top: 10px;"></div>
+
+
+</div>
+
+
+<link rel="stylesheet" href="/resources/css/products.css">

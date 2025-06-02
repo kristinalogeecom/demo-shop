@@ -1,6 +1,6 @@
 <?php
 
-namespace DemoShop\Application\BusinessLogic\Model;
+namespace DemoShop\Application\BusinessLogic\DTO;
 
 /**
  * Represents a category in the system.

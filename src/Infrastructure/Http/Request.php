@@ -161,5 +161,27 @@ class Request
         return $this->routeParams;
     }
 
+    /**
+     * Retrieves uploaded file information for the given key.
+     *
+     * @param string $key
+     *
+     * @return array|null
+     */
+    public function file(string $key): ?array
+    {
+        if(isset($_FILES[$key]) && $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        return [
+            'name' => $_FILES[$key]['name'],
+            'type' => $_FILES[$key]['type'],
+            'tmp_name' => $_FILES[$key]['tmp_name'],
+            'error' => $_FILES[$key]['error'],
+            'size' => $_FILES[$key]['size'],
+        ];
+    }
+
 
 }

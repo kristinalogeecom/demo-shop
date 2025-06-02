@@ -1,7 +1,7 @@
 <?php
 namespace DemoShop\Application\Presentation\Controller;
 
-use DemoShop\Application\BusinessLogic\Model\Admin;
+use DemoShop\Application\BusinessLogic\DTO\Admin;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;
 use DemoShop\Infrastructure\Container\ServiceRegistry;
 use DemoShop\Infrastructure\Exception\DecryptionException;

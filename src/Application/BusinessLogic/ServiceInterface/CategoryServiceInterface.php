@@ -2,7 +2,7 @@
 
 namespace DemoShop\Application\BusinessLogic\ServiceInterface;
 
-use DemoShop\Application\BusinessLogic\Model\CategoryModel;
+use DemoShop\Application\BusinessLogic\DTO\CategoryModel;
 
 /**
  * Interface for handling business logic related to product categories.

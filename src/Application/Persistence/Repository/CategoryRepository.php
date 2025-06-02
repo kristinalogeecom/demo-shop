@@ -2,7 +2,7 @@
 
 namespace DemoShop\Application\Persistence\Repository;
 
-use DemoShop\Application\BusinessLogic\Model\CategoryModel;
+use DemoShop\Application\BusinessLogic\DTO\CategoryModel;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\Persistence\Model\Category;
 use DemoShop\Infrastructure\Exception\NotFoundException;

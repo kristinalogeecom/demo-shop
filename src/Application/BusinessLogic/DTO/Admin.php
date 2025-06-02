@@ -1,6 +1,6 @@
 <?php
 
-namespace DemoShop\Application\BusinessLogic\Model;
+namespace DemoShop\Application\BusinessLogic\DTO;
 
 /**
  * Represents an admin user in the system.

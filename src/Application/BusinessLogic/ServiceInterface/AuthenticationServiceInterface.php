@@ -2,7 +2,7 @@
 
 namespace DemoShop\Application\BusinessLogic\ServiceInterface;
 
-use DemoShop\Application\BusinessLogic\Model\Admin;
+use DemoShop\Application\BusinessLogic\DTO\Admin;
 use DemoShop\Infrastructure\Http\Request;
 
 /**

@@ -3,7 +3,7 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DateTime;
-use DemoShop\Application\BusinessLogic\Model\Admin;
+use DemoShop\Application\BusinessLogic\DTO\Admin;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AdminTokenRepositoryInterface;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\AuthenticationRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\AuthenticationServiceInterface;

@@ -2,7 +2,7 @@
 
 namespace DemoShop\Application\BusinessLogic\Service;
 
-use DemoShop\Application\BusinessLogic\Model\CategoryModel;
+use DemoShop\Application\BusinessLogic\DTO\CategoryModel;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\CategoryServiceInterface;
 use DemoShop\Application\Persistence\Model\Category;
