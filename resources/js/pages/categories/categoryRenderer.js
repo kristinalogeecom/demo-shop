@@ -1,6 +1,3 @@
-import { CategoryService } from './categoryService.js';
-const categoryService = new CategoryService();
-
 export function renderCategoryTree(categories, level = 0) {
     return categories.map(category => {
         const hasChildren = category.children?.length > 0;
@@ -23,13 +20,14 @@ export function renderCategoryTree(categories, level = 0) {
 export async function renderCategoryDetails(categoryId) {
     const response = await fetch(`/admin/categories/view/details/${categoryId}`);
     if (!response.ok) throw new Error('Failed to load category details view');
+
     return await response.text();
 }
-
 
 export async function renderNoSelectionMessage() {
     const response = await fetch('/admin/categories/view/empty');
     if (!response.ok) throw new Error('Failed to load empty panel');
+
     return await response.text();
 }
 
@@ -44,6 +42,7 @@ export function renderErrorMessage(message) {
         </div>
     `;
 }
+
 export async function renderCategoryForm({ categoryId, parentId }) {
     const url = new URL('/admin/categories/view/form', window.location.origin);
 

@@ -2,7 +2,7 @@ import { router } from './router.js';
 import { HttpClient } from './ajax.js';
 
 import { loadDashboardStats } from './pages/dashboardPage.js';
-import { loadProductsView } from './pages/productsPage.js';
+import { loadProductsView } from './pages/products/productsPage.js';
 import { loadCategoriesView } from './pages/categories/categoriesPage.js';
 
 const http = new HttpClient();
