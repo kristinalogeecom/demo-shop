@@ -38,6 +38,13 @@ export async function loadProductsView(page = 1, filters = '') {
             </tr>
         `).join('');
 
+        document.getElementById('selectAll')?.addEventListener('change', function () {
+            const checked = this.checked;
+            document.querySelectorAll('input[type="checkbox"][data-id]').forEach(cb => {
+                cb.checked = checked;
+            });
+        });
+
         document.getElementById('pageInfo').textContent = `${currentPage} / ${lastPage}`;
         document.getElementById('addProduct').onclick = () => loadProductForm();
         document.querySelectorAll('.edit').forEach(btn => btn.onclick = () => loadProductForm(btn.dataset.id));
