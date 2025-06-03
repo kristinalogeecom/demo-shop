@@ -4,6 +4,7 @@ namespace DemoShop\Application\Persistence\Repository;
 
 use DemoShop\Application\BusinessLogic\RepositoryInterface\DashboardRepositoryInterface;
 use DemoShop\Application\Persistence\Model\Category;
+use DemoShop\Application\Persistence\Model\Product;
 
 /**
  * Repository implementation for retrieving admin dashboard statistics.
@@ -17,7 +18,7 @@ class DashboardRepository implements DashboardRepositoryInterface
      */
     public function getProductsCount():int
     {
-        return 10;
+        return Product::count();
     }
 
     /**

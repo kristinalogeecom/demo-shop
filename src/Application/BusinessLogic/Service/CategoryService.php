@@ -63,6 +63,7 @@ class CategoryService implements CategoryServiceInterface
     public function saveCategory(CategoryModel $category): CategoryModel
     {
         $this->validateCategory($category);
+
         return $this->categoryRepository->saveCategory($category);
     }
 

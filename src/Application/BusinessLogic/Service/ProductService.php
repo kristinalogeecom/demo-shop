@@ -52,6 +52,7 @@ class ProductService implements ProductServiceInterface
     public function saveProduct(ProductDTO $product): ?ProductDTO
     {
         $this->validateProduct($product);
+
         return $this->productRepository->saveProduct($product);
     }
 
@@ -137,6 +138,7 @@ class ProductService implements ProductServiceInterface
             $filters['category_ids'] = array_merge([(int)$filters['category_id']], $descendants);
             unset($filters['category_id']);
         }
+
         return $this->productRepository->getFilteredProducts($filters, $page);
     }
 

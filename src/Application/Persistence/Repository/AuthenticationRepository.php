@@ -38,6 +38,7 @@ class AuthenticationRepository implements AuthenticationRepositoryInterface
                 return $admin;
             }
         }
+
         return null;
     }
 
@@ -52,6 +53,7 @@ class AuthenticationRepository implements AuthenticationRepositoryInterface
     public function verifyPassword(Admin $admin, string $password): bool
     {
         $decryptedPassword = $this->encryption->decrypt($admin->password);
+
         return $decryptedPassword === $password;
     }
 }

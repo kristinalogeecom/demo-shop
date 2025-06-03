@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static find(mixed $id)
  * @method static whereIn(string $string, array $ids)
  * @method static where(string $string, mixed $sku)
+ * @method static count()
  */
 class Product extends Model
 {
