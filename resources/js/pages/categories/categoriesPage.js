@@ -140,7 +140,13 @@ async function handleDeleteCategory(categoryId) {
     const shouldClearPanel = selectedCategoryId === String(categoryId);
 
     if (!confirm('Are you sure you want to delete this category?')) return;
-    await categoryService.deleteCategoryById(categoryId);
+
+    try {
+        await categoryService.deleteCategoryById(categoryId);
+    } catch (error) {
+        return;
+    }
+
     await refreshCategoriesTree(shouldClearPanel ? null : selectedCategoryId);
 
     if (shouldClearPanel) {

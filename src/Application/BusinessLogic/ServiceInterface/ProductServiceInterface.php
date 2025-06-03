@@ -17,14 +17,6 @@ interface ProductServiceInterface
     public function getAllProducts(): array;
 
 
-    /**
-     * Retrieves a paginated list of products.
-     *
-     * @param int $page Current page number (1-based index).
-     *
-     * @return array An array containing product data and pagination metadata.
-     */
-    public function getPaginatedProducts(int $page): array;
 
     /**
      * Validates and saves the given product.
@@ -72,4 +64,15 @@ interface ProductServiceInterface
      * @return string Relative path to the saved image file.
      */
     public function handleImageUpload(array $image): string;
+
+    /**
+     * Retrieves filtered and paginated list of products.
+     *
+     * @param array $filters Filters to apply (e.g. keyword, category, price).
+     * @param int $page Current page number.
+     *
+     * @return array Paginated list of filtered products.
+     */
+    public function getFilteredProducts(array $filters, int $page): array;
+
 }

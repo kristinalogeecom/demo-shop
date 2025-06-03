@@ -30,7 +30,7 @@ class ProductController
     }
 
     /**
-     * Returns paginated product data in JSON format.
+     * Retrieves paginated and filtered products based on provided filter options.
      *
      * @param Request $request
      *
@@ -41,12 +41,20 @@ class ProductController
     public function getProducts(Request $request): Response
     {
         $page = (int)($request->query('page') ?? 1);
-        $products = $this->getProductService()->getPaginatedProducts($page);
+
+        $filters = [
+            'q' => $request->query('q'),
+            'category_id' => $request->query('category_id'),
+            'min_price' => $request->query('min_price'),
+            'max_price' => $request->query('max_price'),
+        ];
+
+        $products = $this->getProductService()->getFilteredProducts($filters, $page);
         return new JsonResponse($products);
     }
 
     /**
-     * Renders the product creation/edit form.
+     * Displays the form for creating or editing a product.
      *
      * @param Request $request
      *
@@ -56,7 +64,6 @@ class ProductController
     {
         return new HtmlResponse('ProductForm');
     }
-
 
     /**
      * Validates and saves a product from submitted form data.

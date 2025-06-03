@@ -19,16 +19,6 @@ interface ProductRepositoryInterface
     public function getAllProducts(): array;
 
     /**
-     * Retrieves a paginated list of products.
-     *
-     * @param int $page     Current page number (default is 1).
-     * @param int $perPage  Number of products per page (default is 10).
-     *
-     * @return array An array with keys: products, total, perPage, currentPage, lastPage.
-     */
-    public function getPaginatedProducts(int $page = 1, int $perPage = 10): array;
-
-    /**
      * Saves a new product or updates an existing one based on the given DTO.
      *
      * @param Product $dto Data Transfer Object containing product data.
@@ -65,4 +55,15 @@ interface ProductRepositoryInterface
      * @return void
      */
     public function updateEnabledStatus(array $ids, bool $enabled): void;
+
+    /**
+     * Retrieves paginated and filtered products based on provided filter options.
+     *
+     * @param array $filters Filters for keyword, category, price range.
+     * @param int   $page    Page number.
+     *
+     * @return array Paginated list of products.
+     */
+    public function getFilteredProducts(array $filters, int $page): array;
+
 }

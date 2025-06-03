@@ -86,3 +86,58 @@ form label {
     display: flex;
     gap: 10px;
 }
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f5f7f9;
+    font-size: 14px;
+    min-height: 38px;
+    transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #007bff;
+    background-color: #fff;
+}
+
+#searchInput {
+    flex: 2;
+    min-width: 200px;
+}
+
+#categorySelect {
+    flex: 1;
+    min-width: 150px;
+}
+
+#minPrice,
+#maxPrice {
+    width: 100px;
+}
+
+.filter-button {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-height: 38px;
+}
+
+.filter-button:hover {
+    background-color: #e2e6ea;
+}

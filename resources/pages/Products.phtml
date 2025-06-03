@@ -1,9 +1,21 @@
+<div class="filter-bar">
+    <input type="text" id="searchInput" class="filter-input" placeholder="Search by title, brand, SKU...">
+
+    <select id="categorySelect" class="filter-input">
+        <option value="">-- Choose category --</option>
+    </select>
+
+    <input type="number" id="minPrice" class="filter-input" placeholder="Min Price">
+    <input type="number" id="maxPrice" class="filter-input" placeholder="Max Price">
+
+    <button id="filterButton" class="filter-button">Filter</button>
+</div>
+
 <div class="action-buttons mb-4 flex gap-2">
     <button class="btn btn-primary" id="addProduct">Add new product</button>
     <button class="btn btn-danger" id="deleteSelected">Delete selected</button>
     <button class="btn btn-secondary" id="enableSelected">Enable selected</button>
     <button class="btn btn-secondary" id="disableSelected">Disable selected</button>
-    <button class="btn ml-auto" id="filterBtn">Filter</button>
 </div>
 
 <div class="data-table-container overflow-auto">

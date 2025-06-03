@@ -3,6 +3,7 @@
 namespace DemoShop\Application\BusinessLogic\Service;
 
 use DemoShop\Application\BusinessLogic\DTO\Product as ProductDTO;
+use DemoShop\Application\BusinessLogic\RepositoryInterface\CategoryRepositoryInterface;
 use DemoShop\Application\Persistence\Model\Product;
 use DemoShop\Application\BusinessLogic\RepositoryInterface\ProductRepositoryInterface;
 use DemoShop\Application\BusinessLogic\ServiceInterface\ProductServiceInterface;
@@ -18,6 +19,7 @@ use DemoShop\Infrastructure\Exception\ValidationException;
 class ProductService implements ProductServiceInterface
 {
     private ProductRepositoryInterface $productRepository;
+    private CategoryRepositoryInterface $categoryRepository;
 
     /**
      * @throws ServiceNotFoundException
@@ -25,6 +27,7 @@ class ProductService implements ProductServiceInterface
     public function __construct()
     {
         $this->productRepository = ServiceRegistry::get(ProductRepositoryInterface::class);
+        $this->categoryRepository = ServiceRegistry::get(CategoryRepositoryInterface::class);
     }
 
     /**
@@ -35,18 +38,6 @@ class ProductService implements ProductServiceInterface
     public function getAllProducts(): array
     {
         return $this->productRepository->getAllProducts();
-    }
-
-    /**
-     * Retrieves paginated product list.
-     *
-     * @param int $page
-     *
-     * @return array
-     */
-    public function getPaginatedProducts(int $page): array
-    {
-        return $this->productRepository->getPaginatedProducts($page);
     }
 
     /**
@@ -101,7 +92,6 @@ class ProductService implements ProductServiceInterface
         $this->productRepository->updateEnabledStatus($ids, $enabled);
     }
 
-
     /**
      * Handles image upload and returns relative path.
      *
@@ -130,6 +120,24 @@ class ProductService implements ProductServiceInterface
         }
 
         return 'resources/images/' . $filename;
+    }
+
+    /**
+     * Retrieves filtered and paginated list of products.
+     *
+     * @param array $filters Filters to apply (e.g. keyword, category, price).
+     * @param int $page Current page number.
+     *
+     * @return array Paginated list of filtered products.
+     */
+    public function getFilteredProducts(array $filters, int $page = 1): array
+    {
+        if(!empty($filters['category_id'])){
+            $descendants = $this->categoryRepository->getDescendantIds((int)$filters['category_id']);
+            $filters['category_ids'] = array_merge([(int)$filters['category_id']], $descendants);
+            unset($filters['category_id']);
+        }
+        return $this->productRepository->getFilteredProducts($filters, $page);
     }
 
     /**

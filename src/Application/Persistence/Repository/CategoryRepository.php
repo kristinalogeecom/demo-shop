@@ -158,4 +158,24 @@ class CategoryRepository implements CategoryRepositoryInterface
             $child->delete();
         }
     }
+
+    /**
+     * Retrieves descendant categories IDs in a list.
+     *
+     * @param int $categoryId
+     *
+     * @return array The list of categories.
+     */
+    public function getDescendantIds(int $categoryId): array
+    {
+        $descendants = [];
+
+        $children = Category::where('parent_id', $categoryId)->get();
+        foreach ($children as $child) {
+            $descendants[] = $child->id;
+            $descendants = array_merge($descendants, $this->getDescendantIds($child->id));
+        }
+
+        return $descendants;
+    }
 }

@@ -20,6 +20,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getAllProducts(): array
     {
         return Product::with('category.parent')->orderByDesc('id')->get()->map(function ($product) {
+
             return [
                 'id' => $product->id,
                 'title' => $product->title,
@@ -31,67 +32,8 @@ class ProductRepository implements ProductRepositoryInterface
                 'featured' => $product->featured,
                 'category' => $this->buildCategoryPath($product),
             ];
+
         })->toArray();
-    }
-
-    /**
-     * Retrieves a paginated list of products.
-     *
-     * @param int $page     Current page number (default is 1).
-     * @param int $perPage  Number of products per page (default is 10).
-     *
-     * @return array An array containing paginated product data and metadata.
-     */
-    public function getPaginatedProducts(int $page = 1, int $perPage = 10): array
-    {
-        $query = Product::with('category.parent')->orderByDesc('id');
-
-        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-
-        return [
-            'products' => collect($paginator->items())->map(function ($product) {   // products on this page
-
-                return [
-                    'id' => $product->id,
-                    'title' => $product->title,
-                    'sku' => $product->sku,
-                    'brand' => $product->brand,
-                    'price' => $product->price,
-                    'short_description' => $product->short_description,
-                    'enabled' => $product->enabled,
-                    'featured' => $product->featured,
-                    'category' => $this->buildCategoryPath($product),
-                ];
-
-            })->toArray(),
-            'total' => $paginator->total(),     // total num of products
-            'perPage' => $paginator->perPage(),     // how many products per page
-            'currentPage' => $paginator->currentPage(),     // current page
-            'lastPage' => $paginator->lastPage(),       // total num of pages
-        ];
-    }
-
-    /**
-     * Builds the full category path for a product by walking up the parent hierarchy.
-     *
-     * @param Product $product Product model instance.
-     *
-     * @return string Category path in the format "Parent > Child".
-     */
-    private function buildCategoryPath(Product $product): string
-    {
-        $category = $product->category;
-        if (!$category) return '-';
-
-        $names = [$category->name];
-        $parent = $category->parent;
-
-        while ($parent) {
-            array_unshift($names, $parent->name);
-            $parent = $parent->parent;
-        }
-
-        return implode(' > ', $names);
     }
 
     /**
@@ -138,7 +80,6 @@ class ProductRepository implements ProductRepositoryInterface
         return null;
     }
 
-
     /**
      * Deletes a product by its ID, including its associated image file if it exists.
      *
@@ -161,7 +102,6 @@ class ProductRepository implements ProductRepositoryInterface
         return $product->delete();
 
     }
-
 
     /**
      * Deletes multiple products by their IDs, including their image files if they exist.
@@ -200,4 +140,102 @@ class ProductRepository implements ProductRepositoryInterface
     {
         Product::whereIn('id', $ids)->update(['enabled' => $enabled ? 1 : 0]);
     }
+
+
+    /**
+     * Retrieves paginated and filtered products based on provided filter options.
+     *
+     * @param array $filters Filters for keyword, category, price range.
+     * @param int   $page    Page number.
+     * @param int   $perPage Number of items per page.
+     *
+     * @return array Paginated list of products.
+     */
+    public function getFilteredProducts(array $filters, int $page = 1, int $perPage = 10): array
+    {
+        $query = Product::with('category.parent')->orderByDesc('id');
+
+        // Keyword search (title, sku, brand, short_description)
+        if (!empty($filters['q'])) {
+            $q = $filters['q'];
+            $query->where(function ($qBuilder) use ($q) {
+                $qBuilder->where('title', 'LIKE', "%$q%")
+                    ->orWhere('sku', 'LIKE', "%$q%")
+                    ->orWhere('brand', 'LIKE', "%$q%")
+                    ->orWhere('short_description', 'LIKE', "%$q%");
+            });
+        }
+
+        // Category filter
+        if (!empty($filters['category_ids']) && is_array($filters['category_ids'])) {
+            $query->whereIn('category_id', $filters['category_ids']);
+        }
+
+        // Price range filter
+        if (!empty($filters['min_price'])) {
+            $query->where('price', '>=', (float)$filters['min_price']);
+        }
+        if (!empty($filters['max_price'])) {
+            $query->where('price', '<=', (float)$filters['max_price']);
+        }
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return $this->mapPaginatedProducts($paginator);
+    }
+
+    /**
+     * Builds the full category path for a product by walking up the parent hierarchy.
+     *
+     * @param Product $product Product model instance.
+     *
+     * @return string Category path in the format "Parent > Child".
+     */
+    private function buildCategoryPath(Product $product): string
+    {
+        $category = $product->category;
+        if (!$category) return '-';
+
+        $names = [$category->name];
+        $parent = $category->parent;
+
+        while ($parent) {
+            array_unshift($names, $parent->name);
+            $parent = $parent->parent;
+        }
+
+        return implode(' > ', $names);
+    }
+
+    /**
+     * Maps a paginator instance to a standardized array format.
+     *
+     * @param $paginator
+     *
+     * @return array
+     */
+    private function mapPaginatedProducts($paginator): array
+    {
+        return [
+            'products' => collect($paginator->items())->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'title' => $product->title,
+                    'sku' => $product->sku,
+                    'brand' => $product->brand,
+                    'price' => $product->price,
+                    'short_description' => $product->short_description,
+                    'enabled' => $product->enabled,
+                    'featured' => $product->featured,
+                    'category' => $this->buildCategoryPath($product),
+                ];
+            })->toArray(),
+            'total' => $paginator->total(),
+            'perPage' => $paginator->perPage(),
+            'currentPage' => $paginator->currentPage(),
+            'lastPage' => $paginator->lastPage(),
+        ];
+    }
+
+
 }

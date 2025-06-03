@@ -1,20 +1,23 @@
 import { HttpClient } from '../ajax.js';
 const http = new HttpClient();
 
-export async function loadProductsView(page = 1) {
+export async function loadProductsView(page = 1, filters = '') {
     const app = document.getElementById('app');
     document.getElementById('page-title').textContent = 'Product Management';
     app.innerHTML = `<div class="loading">Loading product view...</div>`;
 
     try {
+        await populateCategoryFilter();
+
         const [html, data] = await Promise.all([
             fetch('/admin/products').then(res => res.text()),
-            http.get(`/admin/products/data?page=${page}`)
+            http.get(`/admin/products/data?page=${page}&${filters}`)
         ]);
 
         const { products, total, perPage, currentPage, lastPage } = data;
-
         app.innerHTML = html;
+
+        await populateCategoryFilter();
 
         const tbody = document.getElementById('productsTableBody');
         tbody.innerHTML = products.map(product => `
@@ -36,7 +39,6 @@ export async function loadProductsView(page = 1) {
 
         document.getElementById('pageInfo').textContent = `${currentPage} / ${lastPage}`;
 
-
         document.getElementById('addProduct').addEventListener('click', () => loadProductForm());
 
         document.querySelectorAll('.edit').forEach(btn => {
@@ -48,7 +50,6 @@ export async function loadProductsView(page = 1) {
         });
 
         document.getElementById('enableSelected').onclick = () => updateEnabledSelection(true);
-
         document.getElementById('disableSelected').onclick = () => updateEnabledSelection(false);
 
         document.getElementById('deleteSelected').onclick = async () => {
@@ -71,28 +72,45 @@ export async function loadProductsView(page = 1) {
             });
 
             await loadProductsView();
-        }
+        };
 
+        document.getElementById('firstPage').onclick = () => loadProductsView(1, filters);
+        document.getElementById('prevPage').onclick = () => loadProductsView(Math.max(1, currentPage - 1), filters);
+        document.getElementById('nextPage').onclick = () => loadProductsView(Math.min(lastPage, currentPage + 1), filters);
+        document.getElementById('lastPage').onclick = () => loadProductsView(lastPage, filters);
 
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const formData = new FormData(form);
-            await fetch('/admin/products/save', { method: 'POST', body: formData });
-            await loadProductsView();
+        document.getElementById('filterButton').addEventListener('click', () => {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categorySelect').value;
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+
+            const params = new URLSearchParams();
+            if (search) params.append('q', search);
+            if (category) params.append('category_id', category);
+            if (minPrice) params.append('min_price', minPrice);
+            if (maxPrice) params.append('max_price', maxPrice);
+
+            loadProductsView(1, params.toString());
         });
-
-        document.getElementById('cancelProduct').addEventListener('click', () => {
-            document.getElementById('productModal').classList.add('hidden');
-        });
-
-        document.getElementById('firstPage').onclick = () => loadProductsView(1);
-        document.getElementById('prevPage').onclick = () => loadProductsView(Math.max(1, currentPage - 1));
-        document.getElementById('nextPage').onclick = () => loadProductsView(Math.min(lastPage, currentPage + 1));
-        document.getElementById('lastPage').onclick = () => loadProductsView(lastPage);
 
     } catch (e) {
         app.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+    }
+}
+
+async function populateCategoryFilter() {
+    try {
+        const categories = await http.get('/admin/categories-flat');
+        const select = document.getElementById('categorySelect');
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+        });
+    } catch (e) {
+        console.warn('Could not load categories for filter');
     }
 }
 

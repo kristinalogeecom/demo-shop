@@ -44,13 +44,22 @@ export class CategoryService {
     async deleteCategoryById(categoryId) {
         try {
             const response = await this.http.post('/admin/categories/delete', { id: categoryId });
+
             if (!response.success) {
-                throw new Error(response.error || 'Delete failed');
+                const message =
+                    response.error ||
+                    (Array.isArray(response.errors) ? response.errors.join('\n') : null) ||
+                    'Delete failed';
+
+                alert(message);
+                throw new Error(message);
+
             }
+
         } catch (error) {
             console.error('Delete error: ', error);
-            alert('Request failed: ' + error.message);
             throw error;
         }
     }
+
 }

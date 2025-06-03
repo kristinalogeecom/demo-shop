@@ -49,4 +49,7 @@ interface CategoryRepositoryInterface
      * @return bool True if the deletion was successful, false otherwise.
      */
     public function deleteCategory(int $id): bool;
+
+    public function getDescendantIds(int $categoryId): array;
+
 }
